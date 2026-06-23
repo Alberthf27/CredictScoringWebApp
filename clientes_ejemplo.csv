@@ -1,0 +1,11 @@
+cliente_id,nombre,checking_status,duration,credit_history,purpose,credit_amount,savings_status,employment,installment_commitment,personal_status,other_parties,residence_since,property_magnitude,age,other_payment_plans,housing,existing_credits,job,num_dependents,own_telephone,foreign_worker
+CLI-0001,Juan Perez,no checking,24,existing paid,radio/tv,2500,<100,1<=X<4,2,male single,none,2,car,35,none,own,1,skilled,1,yes,yes
+CLI-0002,Maria Lopez,<0,36,critical/other existing credit,new car,5000,<100,>=7,3,male single,none,4,real estate,45,bank,own,2,high qualif/self emp/mgmt,1,none,yes
+CLI-0003,Carlos Ruiz,0<=X<200,12,all paid,furniture/equipment,1500,100<=X<500,<1,2,female div/dep/mar,none,1,life insurance,28,none,rent,1,unskilled resident,1,yes,yes
+CLI-0004,Ana Torres,>=200,48,existing paid,business,8000,>=1000,>=7,4,male single,co applicant,3,real estate,52,none,own,3,skilled,2,yes,no
+CLI-0005,Luis Vega,no checking,18,delayed previously,education,3000,<100,1<=X<4,2,male mar/wid,none,2,no known property,31,stores,for free,1,unskilled resident,1,none,yes
+CLI-0006,Sofia Castro,<0,24,no credits/all paid,used car,4500,100<=X<500,4<=X<7,3,male single,none,4,car,42,none,own,2,skilled,1,yes,yes
+CLI-0007,Pedro Mendoza,0<=X<200,12,existing paid,radio/tv,1200,no known savings,unemployed,1,female div/dep/mar,none,1,life insurance,24,none,rent,1,unemp/unskilled non res,1,none,yes
+CLI-0008,Laura Diaz,no checking,36,critical/other existing credit,new car,6500,<100,1<=X<4,2,male single,guarantor,2,real estate,38,bank,own,1,skilled,1,yes,yes
+CLI-0009,Diego Morales,<0,24,existing paid,furniture/equipment,2800,500<=X<1000,>=7,2,male single,none,3,car,29,none,rent,2,unskilled resident,1,yes,no
+CLI-0010,Elena Rojas,>=200,48,delayed previously,business,7200,no known savings,4<=X<7,4,male mar/wid,none,4,no known property,55,none,for free,2,high qualif/self emp/mgmt,2,none,yes

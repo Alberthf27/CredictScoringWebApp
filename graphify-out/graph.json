@@ -1,0 +1,506 @@
+{
+  "directed": false,
+  "multigraph": false,
+  "graph": {},
+  "nodes": [
+    {
+      "label": "app.py",
+      "file_type": "code",
+      "source_file": "app.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "app",
+      "community": 1,
+      "norm_label": "app.py"
+    },
+    {
+      "label": "load_models()",
+      "file_type": "code",
+      "source_file": "app.py",
+      "source_location": "L79",
+      "_origin": "ast",
+      "id": "app_load_models",
+      "community": 1,
+      "norm_label": "load_models()"
+    },
+    {
+      "label": "cargar_csv()",
+      "file_type": "code",
+      "source_file": "app.py",
+      "source_location": "L108",
+      "_origin": "ast",
+      "id": "app_cargar_csv",
+      "community": 2,
+      "norm_label": "cargar_csv()"
+    },
+    {
+      "label": "DataFrame",
+      "file_type": "code",
+      "source_file": "",
+      "source_location": "",
+      "_origin": "ast",
+      "id": "dataframe",
+      "community": 2,
+      "norm_label": "dataframe"
+    },
+    {
+      "label": "cargar_arff()",
+      "file_type": "code",
+      "source_file": "app.py",
+      "source_location": "L116",
+      "_origin": "ast",
+      "id": "app_cargar_arff",
+      "community": 2,
+      "norm_label": "cargar_arff()"
+    },
+    {
+      "label": "validar_columnas()",
+      "file_type": "code",
+      "source_file": "app.py",
+      "source_location": "L126",
+      "_origin": "ast",
+      "id": "app_validar_columnas",
+      "community": 2,
+      "norm_label": "validar_columnas()"
+    },
+    {
+      "label": "predecir_lote()",
+      "file_type": "code",
+      "source_file": "app.py",
+      "source_location": "L131",
+      "_origin": "ast",
+      "id": "app_predecir_lote",
+      "community": 1,
+      "norm_label": "predecir_lote()"
+    },
+    {
+      "label": "colorear_filas()",
+      "file_type": "code",
+      "source_file": "app.py",
+      "source_location": "L149",
+      "_origin": "ast",
+      "id": "app_colorear_filas",
+      "community": 1,
+      "norm_label": "colorear_filas()"
+    },
+    {
+      "label": "Credit Scoring - German Credit Data Aplicaci\u00f3n Streamlit para predicci\u00f3n por lot",
+      "file_type": "rationale",
+      "source_file": "app.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "app_rationale_1",
+      "community": 1,
+      "norm_label": "credit scoring - german credit data aplicacion streamlit para prediccion por lot"
+    },
+    {
+      "label": "Carga los 4 archivos .pkl exportados desde el notebook.",
+      "file_type": "rationale",
+      "source_file": "app.py",
+      "source_location": "L80",
+      "_origin": "ast",
+      "id": "app_rationale_80",
+      "community": 1,
+      "norm_label": "carga los 4 archivos .pkl exportados desde el notebook."
+    },
+    {
+      "label": "Carga un CSV desde un archivo subido a Streamlit.",
+      "file_type": "rationale",
+      "source_file": "app.py",
+      "source_location": "L109",
+      "_origin": "ast",
+      "id": "app_rationale_109",
+      "community": 2,
+      "norm_label": "carga un csv desde un archivo subido a streamlit."
+    },
+    {
+      "label": "Carga un ARFF desde un archivo subido a Streamlit.",
+      "file_type": "rationale",
+      "source_file": "app.py",
+      "source_location": "L117",
+      "_origin": "ast",
+      "id": "app_rationale_117",
+      "community": 2,
+      "norm_label": "carga un arff desde un archivo subido a streamlit."
+    },
+    {
+      "label": "Retorna la lista de columnas requeridas que faltan en el DataFrame.",
+      "file_type": "rationale",
+      "source_file": "app.py",
+      "source_location": "L127",
+      "_origin": "ast",
+      "id": "app_rationale_127",
+      "community": 2,
+      "norm_label": "retorna la lista de columnas requeridas que faltan en el dataframe."
+    },
+    {
+      "label": "Transforma y predice para todo el DataFrame. Devuelve un DF con resultados.",
+      "file_type": "rationale",
+      "source_file": "app.py",
+      "source_location": "L132",
+      "_origin": "ast",
+      "id": "app_rationale_132",
+      "community": 1,
+      "norm_label": "transforma y predice para todo el dataframe. devuelve un df con resultados."
+    },
+    {
+      "label": "Devuelve colores para una fila seg\u00fan la predicci\u00f3n.",
+      "file_type": "rationale",
+      "source_file": "app.py",
+      "source_location": "L150",
+      "_origin": "ast",
+      "id": "app_rationale_150",
+      "community": 1,
+      "norm_label": "devuelve colores para una fila segun la prediccion."
+    },
+    {
+      "type": "document",
+      "label": "requirements.txt",
+      "source_location": "E:\\ALBERTH ALM\\DOCUMENTOS\\PROYECTOS\\PROYECTO AE APRENDIZAJE ESTADISTICO\\requirements.txt",
+      "description": "Dependencies specification file",
+      "file_type": "concept",
+      "id": "requirements",
+      "community": 0,
+      "norm_label": "requirements.txt"
+    },
+    {
+      "type": "package",
+      "label": "streamlit",
+      "version": "1.28.1",
+      "source_location": "E:\\ALBERTH ALM\\DOCUMENTOS\\PROYECTOS\\PROYECTO AE APRENDIZAJE ESTADISTICO\\requirements.txt",
+      "file_type": "concept",
+      "id": "pkg_streamlit",
+      "community": 0,
+      "norm_label": "streamlit"
+    },
+    {
+      "type": "package",
+      "label": "scikit-learn",
+      "version": "1.3.2",
+      "source_location": "E:\\ALBERTH ALM\\DOCUMENTOS\\PROYECTOS\\PROYECTO AE APRENDIZAJE ESTADISTICO\\requirements.txt",
+      "file_type": "concept",
+      "id": "pkg_scikit_learn",
+      "community": 0,
+      "norm_label": "scikit-learn"
+    },
+    {
+      "type": "package",
+      "label": "imbalanced-learn",
+      "version": "0.12.0",
+      "source_location": "E:\\ALBERTH ALM\\DOCUMENTOS\\PROYECTOS\\PROYECTO AE APRENDIZAJE ESTADISTICO\\requirements.txt",
+      "file_type": "concept",
+      "id": "pkg_imbalanced_learn",
+      "community": 0,
+      "norm_label": "imbalanced-learn"
+    },
+    {
+      "type": "package",
+      "label": "pandas",
+      "version": "2.1.4",
+      "source_location": "E:\\ALBERTH ALM\\DOCUMENTOS\\PROYECTOS\\PROYECTO AE APRENDIZAJE ESTADISTICO\\requirements.txt",
+      "file_type": "concept",
+      "id": "pkg_pandas",
+      "community": 0,
+      "norm_label": "pandas"
+    },
+    {
+      "type": "package",
+      "label": "numpy",
+      "version": "1.24.3",
+      "source_location": "E:\\ALBERTH ALM\\DOCUMENTOS\\PROYECTOS\\PROYECTO AE APRENDIZAJE ESTADISTICO\\requirements.txt",
+      "file_type": "concept",
+      "id": "pkg_numpy",
+      "community": 0,
+      "norm_label": "numpy"
+    },
+    {
+      "type": "package",
+      "label": "matplotlib",
+      "version": "3.8.2",
+      "source_location": "E:\\ALBERTH ALM\\DOCUMENTOS\\PROYECTOS\\PROYECTO AE APRENDIZAJE ESTADISTICO\\requirements.txt",
+      "file_type": "concept",
+      "id": "pkg_matplotlib",
+      "community": 0,
+      "norm_label": "matplotlib"
+    },
+    {
+      "type": "package",
+      "label": "seaborn",
+      "version": "0.13.0",
+      "source_location": "E:\\ALBERTH ALM\\DOCUMENTOS\\PROYECTOS\\PROYECTO AE APRENDIZAJE ESTADISTICO\\requirements.txt",
+      "file_type": "concept",
+      "id": "pkg_seaborn",
+      "community": 0,
+      "norm_label": "seaborn"
+    },
+    {
+      "type": "package",
+      "label": "scipy",
+      "version": "1.11.4",
+      "source_location": "E:\\ALBERTH ALM\\DOCUMENTOS\\PROYECTOS\\PROYECTO AE APRENDIZAJE ESTADISTICO\\requirements.txt",
+      "file_type": "concept",
+      "id": "pkg_scipy",
+      "community": 0,
+      "norm_label": "scipy"
+    },
+    {
+      "type": "package",
+      "label": "joblib",
+      "version": "1.3.2",
+      "source_location": "E:\\ALBERTH ALM\\DOCUMENTOS\\PROYECTOS\\PROYECTO AE APRENDIZAJE ESTADISTICO\\requirements.txt",
+      "file_type": "concept",
+      "id": "pkg_joblib",
+      "community": 0,
+      "norm_label": "joblib"
+    }
+  ],
+  "links": [
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app.py",
+      "source_location": "L116",
+      "weight": 1.0,
+      "source": "app",
+      "target": "app_cargar_arff",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app.py",
+      "source_location": "L108",
+      "weight": 1.0,
+      "source": "app",
+      "target": "app_cargar_csv",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app.py",
+      "source_location": "L149",
+      "weight": 1.0,
+      "source": "app",
+      "target": "app_colorear_filas",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app.py",
+      "source_location": "L79",
+      "weight": 1.0,
+      "source": "app",
+      "target": "app_load_models",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app.py",
+      "source_location": "L131",
+      "weight": 1.0,
+      "source": "app",
+      "target": "app_predecir_lote",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "app.py",
+      "source_location": "L126",
+      "weight": 1.0,
+      "source": "app",
+      "target": "app_validar_columnas",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "app.py",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "app_rationale_1",
+      "target": "app",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "app.py",
+      "source_location": "L80",
+      "weight": 1.0,
+      "source": "app_rationale_80",
+      "target": "app_load_models",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "return_type",
+      "confidence": "EXTRACTED",
+      "source_file": "app.py",
+      "source_location": "L108",
+      "weight": 1.0,
+      "source": "app_cargar_csv",
+      "target": "dataframe",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "app.py",
+      "source_location": "L109",
+      "weight": 1.0,
+      "source": "app_rationale_109",
+      "target": "app_cargar_csv",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "return_type",
+      "confidence": "EXTRACTED",
+      "source_file": "app.py",
+      "source_location": "L116",
+      "weight": 1.0,
+      "source": "app_cargar_arff",
+      "target": "dataframe",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "return_type",
+      "confidence": "EXTRACTED",
+      "source_file": "app.py",
+      "source_location": "L131",
+      "weight": 1.0,
+      "source": "app_predecir_lote",
+      "target": "dataframe",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "parameter_type",
+      "confidence": "EXTRACTED",
+      "source_file": "app.py",
+      "source_location": "L126",
+      "weight": 1.0,
+      "source": "app_validar_columnas",
+      "target": "dataframe",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "app.py",
+      "source_location": "L117",
+      "weight": 1.0,
+      "source": "app_rationale_117",
+      "target": "app_cargar_arff",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "app.py",
+      "source_location": "L127",
+      "weight": 1.0,
+      "source": "app_rationale_127",
+      "target": "app_validar_columnas",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "app.py",
+      "source_location": "L132",
+      "weight": 1.0,
+      "source": "app_rationale_132",
+      "target": "app_predecir_lote",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "source_file": "app.py",
+      "source_location": "L150",
+      "weight": 1.0,
+      "source": "app_rationale_150",
+      "target": "app_colorear_filas",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "specifies_dependency",
+      "confidence": 1.0,
+      "source_file": "",
+      "source": "requirements",
+      "target": "pkg_imbalanced_learn",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "specifies_dependency",
+      "confidence": 1.0,
+      "source_file": "",
+      "source": "requirements",
+      "target": "pkg_joblib",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "specifies_dependency",
+      "confidence": 1.0,
+      "source_file": "",
+      "source": "requirements",
+      "target": "pkg_matplotlib",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "specifies_dependency",
+      "confidence": 1.0,
+      "source_file": "",
+      "source": "requirements",
+      "target": "pkg_numpy",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "specifies_dependency",
+      "confidence": 1.0,
+      "source_file": "",
+      "source": "requirements",
+      "target": "pkg_pandas",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "specifies_dependency",
+      "confidence": 1.0,
+      "source_file": "",
+      "source": "requirements",
+      "target": "pkg_scikit_learn",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "specifies_dependency",
+      "confidence": 1.0,
+      "source_file": "",
+      "source": "requirements",
+      "target": "pkg_scipy",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "specifies_dependency",
+      "confidence": 1.0,
+      "source_file": "",
+      "source": "requirements",
+      "target": "pkg_seaborn",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "specifies_dependency",
+      "confidence": 1.0,
+      "source_file": "",
+      "source": "requirements",
+      "target": "pkg_streamlit",
+      "confidence_score": 1.0
+    }
+  ],
+  "hyperedges": []
+}
