@@ -788,73 +788,66 @@ st.markdown(
 
 
 # ============================================================
-# LAYOUT EN 2 COLUMNAS: MODO (izquierda) + ARCHIVO (derecha)
+# SELECTOR DE MODO
 # ============================================================
-col_izq, col_der = st.columns([1, 2], gap="large")
+st.markdown('<p class="section-title">1. Modo de análisis</p>', unsafe_allow_html=True)
 
-with col_izq:
-    st.markdown('<p class="section-title">1. Modo de análisis</p>', unsafe_allow_html=True)
+modo = st.radio(
+    "Selecciona el modo",
+    options=["Completo (20 columnas)", "Simplificado (9 columnas)", "Personalizado"],
+    horizontal=True,
+    label_visibility="collapsed",
+)
 
-    modo = st.radio(
-        "Selecciona el modo",
-        options=["Completo (20 columnas)", "Simplificado (9 columnas)", "Personalizado"],
-        label_visibility="collapsed",
+if modo == "Completo (20 columnas)":
+    st.markdown(
+        '<div class="info-card">El archivo debe contener las <b>20 columnas</b> del modelo. '
+        "Si tu archivo tiene menos, usa el modo Simplificado o Personalizado.</div>",
+        unsafe_allow_html=True,
     )
-
-    if modo == "Completo (20 columnas)":
+    columnas_requeridas = feature_names
+elif modo == "Simplificado (9 columnas)":
+    st.markdown(
+        '<div class="info-card">Tu archivo necesita solo estas <b>9 columnas</b> '
+        "(reconocemos variaciones como <code>Edad</code>/<code>Age</code>, "
+        "<code>Sexo</code>/<code>Sex</code>, etc.). Las 11 restantes se completan automáticamente.<br><br>"
+        "<b>Columnas reconocidas:</b> "
+        "<code>Age</code>, <code>Sex</code>, <code>Job</code>, <code>Housing</code>, "
+        "<code>Saving accounts</code>, <code>Checking account</code>, "
+        "<code>Credit amount</code>, <code>Duration</code>, <code>Purpose</code>"
+        "</div>",
+        unsafe_allow_html=True,
+    )
+    columnas_requeridas = COLUMNAS_SIMPLIFICADAS
+else:  # Personalizado
+    cols_sel = st.multiselect(
+        "Selecciona las columnas que tendrá tu archivo",
+        options=feature_names,
+        default=feature_names,
+        help="Las columnas no seleccionadas se completan con valores por defecto del training set",
+    )
+    columnas_requeridas = cols_sel
+    if len(cols_sel) == 0:
+        st.markdown('<div class="warning-card">⚠️ Selecciona al menos una columna.</div>', unsafe_allow_html=True)
+    else:
         st.markdown(
-            '<div class="info-card" style="font-size:0.85rem; padding:0.7rem 0.9rem;">'
-            "El archivo debe contener las <b>20 columnas</b> del modelo. "
-            "Si tu archivo tiene menos, usa el modo Simplificado."
-            "</div>",
+            f'<div class="info-card">Tu archivo tendrá <b>{len(cols_sel)} columnas</b>. '
+            f"Las {20 - len(cols_sel)} restantes se completan automáticamente con valores típicos del dataset.</div>",
             unsafe_allow_html=True,
         )
-        columnas_requeridas = feature_names
-    elif modo == "Simplificado (9 columnas)":
-        st.markdown(
-            '<div class="info-card" style="font-size:0.85rem; padding:0.7rem 0.9rem;">'
-            "Solo necesitas <b>9 columnas</b>:<br>"
-            "<code>Age</code>, <code>Sex</code>, <code>Job</code>, <code>Housing</code>,<br>"
-            "<code>Saving accounts</code>, <code>Checking account</code>,<br>"
-            "<code>Credit amount</code>, <code>Duration</code>, <code>Purpose</code><br><br>"
-            "Las 11 restantes se completan automáticamente."
-            "</div>",
-            unsafe_allow_html=True,
-        )
-        columnas_requeridas = COLUMNAS_SIMPLIFICADAS
-    else:  # Personalizado
-        cols_sel = st.multiselect(
-            "Columnas en tu archivo",
-            options=feature_names,
-            default=feature_names,
-            help="Las no seleccionadas se completan con valores por defecto",
-        )
-        columnas_requeridas = cols_sel
-        if len(cols_sel) == 0:
-            st.markdown(
-                '<div class="warning-card" style="font-size:0.85rem; padding:0.7rem 0.9rem;">'
-                "Selecciona al menos una columna."
-                "</div>",
-                unsafe_allow_html=True,
-            )
-        else:
-            st.markdown(
-                f'<div class="info-card" style="font-size:0.85rem; padding:0.7rem 0.9rem;">'
-                f"Tu archivo: <b>{len(cols_sel)} columnas</b>. "
-                f"Las {20 - len(cols_sel)} restantes se completan automáticamente."
-                "</div>",
-                unsafe_allow_html=True,
-            )
 
-with col_der:
-    st.markdown('<p class="section-title">2. Cargar archivo</p>', unsafe_allow_html=True)
 
-    archivo_subido = st.file_uploader(
-        "Arrastra o selecciona tu archivo CSV/ARFF",
-        type=["csv", "arff", "txt", "data"],
-        help="Formatos soportados: CSV (con/sin headers, formato UCI), ARFF.",
-        label_visibility="collapsed",
-    )
+# ============================================================
+# UPLOAD
+# ============================================================
+st.markdown('<p class="section-title">2. Cargar archivo</p>', unsafe_allow_html=True)
+
+archivo_subido = st.file_uploader(
+    "Arrastra o selecciona tu archivo CSV/ARFF",
+    type=["csv", "arff", "txt", "data"],
+    help="Formatos soportados: CSV (con o sin headers, formato UCI), ARFF.",
+    label_visibility="collapsed",
+)
 
 # ============================================================
 # PROCESAMIENTO (debajo de las 2 columnas, full width)
@@ -1083,139 +1076,22 @@ if "resultados" in st.session_state:
         )
 
     # ========================================================
-    # GRÁFICOS HTML/SVG (sin dependencias externas)
+    # GRÁFICOS (versión original con st.bar_chart)
     # ========================================================
-    st.markdown('<p class="section-title">Visualización de resultados</p>', unsafe_allow_html=True)
-
-    cg1, cg2 = st.columns(2, gap="large")
-
-    # ---- Gráfico 1: Distribución por nivel de riesgo (donut chart) ----
-    with cg1:
+    st.markdown('<p class="section-title">Distribución de riesgo</p>', unsafe_allow_html=True)
+    c1, c2 = st.columns(2)
+    with c1:
+        st.markdown("**Por nivel de riesgo**")
         distribucion = df_resultados["Nivel de Riesgo"].value_counts().reindex(
             ["Bajo", "Moderado", "Alto", "Muy Alto"], fill_value=0
         )
-        valores = distribucion.values.tolist()
-        labels = distribucion.index.tolist()
-        colores = ["#16a34a", "#84cc16", "#f59e0b", "#dc2626"]
-        total = sum(valores) or 1
-
-        # Construir SVG donut
-        svg_segments = ""
-        cumulative = 0
-        radius = 60
-        cx, cy = 80, 80
-        circumference = 2 * 3.14159 * radius
-
-        for val, color in zip(valores, colores):
-            if val == 0:
-                continue
-            length = (val / total) * circumference
-            offset = -cumulative
-            svg_segments += (
-                f'<circle r="{radius}" cx="{cx}" cy="{cy}" fill="transparent" '
-                f'stroke="{color}" stroke-width="20" '
-                f'stroke-dasharray="{length} {circumference - length}" '
-                f'stroke-dashoffset="{offset}" '
-                f'transform="rotate(-90 {cx} {cy})" />'
-            )
-            cumulative += length
-
-        legend = ""
-        for label, val, color in zip(labels, valores, colores):
-            pct = val / total * 100
-            legend += (
-                f'<div style="display:flex;align-items:center;margin:0.4rem 0;font-size:0.9rem;">'
-                f'<span style="display:inline-block;width:12px;height:12px;background:{color};'
-                f'border-radius:3px;margin-right:8px;"></span>'
-                f'<span style="flex:1;color:#1a365d;font-weight:500;">{label}</span>'
-                f'<span style="color:#4a5568;font-weight:600;">{val} ({pct:.1f}%)</span>'
-                f"</div>"
-            )
-
-        st.markdown(
-            f"""
-            <div style="background:#ffffff;padding:1.5rem;border-radius:10px;border:1px solid #e2e8f0;">
-              <h4 style="margin:0 0 1rem 0;color:#1a365d;font-size:1rem;">Clientes por nivel de riesgo</h4>
-              <div style="display:flex;align-items:center;gap:1.5rem;">
-                <svg width="160" height="160" viewBox="0 0 160 160">
-                  <circle r="{radius}" cx="{cx}" cy="{cy}" fill="transparent"
-                    stroke="#f1f5f9" stroke-width="20" />
-                  {svg_segments}
-                  <text x="{cx}" y="{cy-3}" text-anchor="middle" font-size="22" font-weight="800" fill="#1a365d">{total}</text>
-                  <text x="{cx}" y="{cy+15}" text-anchor="middle" font-size="11" fill="#4a5568">clientes</text>
-                </svg>
-                <div style="flex:1;">{legend}</div>
-              </div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-
-    # ---- Gráfico 2: Distribución de probabilidad de morosidad (histograma) ----
-    with cg2:
+        st.bar_chart(distribucion, color=["#16a34a"], height=300)
+    with c2:
+        st.markdown("**Probabilidad de morosidad**")
         proba = df_resultados["Prob. Moroso (%)"]
-        bins = [0, 20, 40, 60, 80, 100]
-        labels_h = ["0-20%", "20-40%", "40-60%", "60-80%", "80-100%"]
-        counts, _ = np.histogram(proba, bins=bins)
-        max_count = max(counts) if max(counts) > 0 else 1
-        colors_h = ["#16a34a", "#65a30d", "#f59e0b", "#ea580c", "#dc2626"]
-
-        # Barras horizontales
-        bars_html = ""
-        for label, count, color in zip(labels_h, counts, colors_h):
-            pct = count / total * 100
-            width_pct = (count / max_count) * 100
-            bars_html += (
-                f'<div style="margin:0.5rem 0;">'
-                f'<div style="display:flex;justify-content:space-between;'
-                f'font-size:0.85rem;margin-bottom:0.2rem;">'
-                f'<span style="color:#1a365d;font-weight:600;">{label} de morosidad</span>'
-                f'<span style="color:#4a5568;font-weight:600;">{count} clientes ({pct:.1f}%)</span>'
-                f"</div>"
-                f'<div style="background:#f1f5f9;border-radius:4px;height:28px;overflow:hidden;">'
-                f'<div style="background:{color};height:100%;width:{width_pct}%;'
-                f'transition:width 0.5s ease;border-radius:4px;"></div>'
-                f"</div>"
-                f"</div>"
-            )
-
-        st.markdown(
-            f"""
-            <div style="background:#ffffff;padding:1.5rem;border-radius:10px;border:1px solid #e2e8f0;">
-              <h4 style="margin:0 0 0.3rem 0;color:#1a365d;font-size:1rem;">Distribución de probabilidad de morosidad</h4>
-              <p style="margin:0 0 1rem 0;color:#718096;font-size:0.8rem;">
-                Cada barra muestra cuántos clientes caen en ese rango de probabilidad de ser morosos.
-                <span style="color:#16a340;font-weight:600;">Verde</span> = bajo riesgo,
-                <span style="color:#f59e0b;font-weight:600;">naranja</span> = medio,
-                <span style="color:#dc2626;font-weight:600;">rojo</span> = alto riesgo.
-              </p>
-              {bars_html}
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-
-    # ---- Gráfico 3: Comparación Solventes vs Morosos (pie / progress bars) ----
-    st.markdown(
-        f"""
-        <div style="background:#ffffff;padding:1.5rem;border-radius:10px;border:1px solid #e2e8f0;margin-top:1rem;">
-          <h4 style="margin:0 0 1rem 0;color:#1a365d;font-size:1rem;">Proporción de la cartera</h4>
-          <div style="display:flex;height:60px;border-radius:8px;overflow:hidden;border:1px solid #e2e8f0;">
-            <div style="background:linear-gradient(90deg,#16a34a,#22c55e);width:{pct_solv}%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:1.1rem;">
-              {pct_solv:.1f}% Solventes
-            </div>
-            <div style="background:linear-gradient(90deg,#dc2626,#ef4444);width:{pct_mor}%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:1.1rem;">
-              {pct_mor:.1f}% Morosos
-            </div>
-          </div>
-          <div style="display:flex;justify-content:space-between;margin-top:0.6rem;font-size:0.9rem;color:#4a5568;">
-            <span><b style="color:#15803d;">{n_solv}</b> clientes solventes</span>
-            <span><b style="color:#b91c1c;">{n_mor}</b> clientes morosos</span>
-          </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+        hist = pd.cut(proba, bins=[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]).value_counts().sort_index()
+        hist.index = hist.index.astype(str)
+        st.bar_chart(hist, color=["#1a365d"], height=300)
 
 
 # ============================================================
