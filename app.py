@@ -1,9 +1,11 @@
 """
 Credit Scoring - German Credit Data
-Aplicacion Streamlit con selector inteligente de columnas.
+App Streamlit con diseno profesional, selector inteligente de columnas,
+y mapeo flexible de nombres (espanol/ingles/variantes).
 """
 
 import io
+import re
 import joblib
 import numpy as np
 import pandas as pd
@@ -18,288 +20,309 @@ st.set_page_config(
     page_title="Credit Scoring | German Credit",
     page_icon="🏦",
     layout="wide",
-    initial_sidebar_state="expanded",
-    menu_items={"About": "Credit Scoring - UPAO"},
+    initial_sidebar_state="collapsed",
 )
 
 
 # ============================================================
-# CSS - LIMPIO Y MINIMALISTA
+# CSS - PROFESIONAL Y LIMPIO
 # ============================================================
 st.markdown(
     """
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-    html, body, [class*="css"] {
+    /* ============================================
+       BASE
+       ============================================ */
+    html, body, [class*="css"], .stMarkdown, p, span, div {
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     }
 
     #MainMenu { visibility: hidden; }
     footer { visibility: hidden; }
-    header[data-testid="stHeader"] { background: transparent; }
+    header[data-testid="stHeader"] { background: transparent; height: 0; }
 
-    /* Layout centrado */
+    /* Layout principal centrado y amplio */
     .block-container {
-        padding-top: 2rem;
+        padding-top: 1rem;
         padding-bottom: 3rem;
-        max-width: 1080px;
+        max-width: 1200px;
+        padding-left: 3rem;
+        padding-right: 3rem;
     }
     [data-testid="stAppViewContainer"] > .main {
-        max-width: 1080px;
+        max-width: 1200px;
         margin: 0 auto;
     }
 
-    /* Sidebar */
-    section[data-testid="stSidebar"] {
-        width: 270px !important;
-        min-width: 270px !important;
-        max-width: 270px !important;
-    }
-    section[data-testid="stSidebar"] > div {
-        width: 270px !important;
-        padding: 0 !important;
-    }
-    section[data-testid="stSidebar"] .block-container {
-        max-width: 100%;
-        padding: 1.2rem 0.9rem;
-    }
-    section[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] {
-        max-width: 100%;
-        overflow: hidden;
-    }
+    /* ============================================
+       TIPOGRAFÍA (más grande y legible)
+       ============================================ */
+    h1 { font-size: 2.4rem !important; font-weight: 800 !important; }
+    h2 { font-size: 1.6rem !important; font-weight: 700 !important; }
+    h3 { font-size: 1.2rem !important; font-weight: 700 !important; }
+    p, li { font-size: 0.95rem !important; line-height: 1.6 !important; }
+    label, .stMarkdown { font-size: 0.95rem !important; }
 
-    /* Header minimalista */
+    /* ============================================
+       HEADER
+       ============================================ */
     .app-header {
-        padding: 1.2rem 0 1.5rem 0;
+        padding: 2rem 0 1.5rem 0;
         border-bottom: 1px solid #e5e9f0;
-        margin-bottom: 1.5rem;
+        margin-bottom: 2rem;
     }
     .app-header h1 {
-        font-size: 1.6rem;
-        font-weight: 800;
-        color: #1e3a5f;
+        color: #1a365d;
         margin: 0;
-        letter-spacing: -0.02em;
+        letter-spacing: -0.025em;
     }
     .app-header p {
-        font-size: 0.88rem;
-        color: #6b7785;
-        margin: 0.2rem 0 0 0;
+        color: #718096;
+        margin: 0.4rem 0 0 0;
+        font-size: 1.05rem;
     }
 
-    /* Section titles */
+    /* ============================================
+       SECTION TITLES
+       ============================================ */
     .section-title {
-        font-size: 0.95rem;
-        font-weight: 700;
-        color: #1e3a5f;
-        margin: 1.5rem 0 0.6rem 0;
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
-    }
-
-    /* Mode selector cards */
-    .mode-card {
-        background: white;
-        border: 1px solid #e5e9f0;
-        border-radius: 8px;
-        padding: 0.9rem 1rem;
-        height: 100%;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-    .mode-card.active {
-        border-color: #1f4e79;
-        background: #eff6ff;
-        box-shadow: 0 2px 8px rgba(31, 78, 121, 0.1);
-    }
-    .mode-card .mode-title {
-        font-weight: 700;
-        color: #1e3a5f;
-        font-size: 0.95rem;
-        margin-bottom: 0.2rem;
-    }
-    .mode-card .mode-desc {
         font-size: 0.78rem;
-        color: #6b7785;
-        line-height: 1.4;
+        font-weight: 700;
+        color: #4a5568;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin: 1.8rem 0 0.8rem 0;
+        padding-bottom: 0.4rem;
+        border-bottom: 1px solid #edf2f7;
     }
 
-    /* Stat cards */
-    .stat-card {
-        background: white;
-        padding: 1rem 1.1rem;
-        border-radius: 8px;
-        border: 1px solid #e5e9f0;
-        transition: all 0.2s ease;
-        height: 100%;
+    /* ============================================
+       CARDS
+       ============================================ */
+    .card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 1.4rem 1.5rem;
+        margin-bottom: 1rem;
     }
-    .stat-card:hover {
-        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+    .card-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #1a365d;
+        margin: 0 0 0.6rem 0;
+    }
+    .card-desc {
+        font-size: 0.88rem;
+        color: #718096;
+        line-height: 1.5;
+        margin: 0;
+    }
+
+    /* ============================================
+       STAT CARDS (más grandes)
+       ============================================ */
+    .stat-card {
+        background: #ffffff;
+        padding: 1.3rem 1.4rem;
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+        height: 100%;
     }
     .stat-card .label {
-        color: #6b7785;
-        font-size: 0.7rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }
-    .stat-card .value {
-        font-size: 1.5rem;
-        font-weight: 700;
-        line-height: 1.1;
-        margin: 0.2rem 0 0 0;
-        color: #1e3a5f;
-    }
-    .stat-card .delta {
-        color: #6b7785;
-        font-size: 0.8rem;
-        margin-top: 0.1rem;
-    }
-    .stat-card.success { border-left: 3px solid #16a34a; }
-    .stat-card.success .value { color: #15803d; }
-    .stat-card.danger { border-left: 3px solid #dc2626; }
-    .stat-card.danger .value { color: #b91c1c; }
-    .stat-card.warning { border-left: 3px solid #f59e0b; }
-    .stat-card.warning .value { color: #b45309; }
-    .stat-card.info { border-left: 3px solid #3b82f6; }
-    .stat-card.info .value { color: #1e40af; }
-
-    /* Sidebar metrics */
-    .sb-metric {
-        background: #f8fafc;
-        padding: 0.5rem 0.7rem;
-        border-radius: 6px;
-        border-left: 3px solid #1f4e79;
-        margin-bottom: 0.4rem;
-        overflow: hidden;
-    }
-    .sb-metric .lbl {
-        color: #6b7785;
-        font-size: 0.65rem;
-        font-weight: 600;
-        text-transform: uppercase;
-    }
-    .sb-metric .val {
-        color: #1e3a5f;
-        font-size: 0.95rem;
-        font-weight: 700;
-    }
-    .sb-section-title {
-        color: #1e3a5f;
-        font-size: 0.7rem;
+        color: #718096;
+        font-size: 0.72rem;
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.06em;
-        margin: 0.8rem 0 0.4rem 0;
-        padding-bottom: 0.3rem;
-        border-bottom: 1px solid #e5e9f0;
+    }
+    .stat-card .value {
+        font-size: 2rem;
+        font-weight: 800;
+        line-height: 1.1;
+        margin: 0.3rem 0 0 0;
+        color: #1a365d;
+    }
+    .stat-card .delta {
+        color: #718096;
+        font-size: 0.85rem;
+        margin-top: 0.3rem;
+    }
+    .stat-card.success { border-left: 4px solid #16a34a; }
+    .stat-card.success .value { color: #15803d; }
+    .stat-card.danger { border-left: 4px solid #dc2626; }
+    .stat-card.danger .value { color: #b91c1c; }
+    .stat-card.warning { border-left: 4px solid #f59e0b; }
+    .stat-card.warning .value { color: #b45309; }
+    .stat-card.info { border-left: 4px solid #3b82f6; }
+    .stat-card.info .value { color: #1e40af; }
+
+    /* ============================================
+       ALERTAS
+       ============================================ */
+    .info-card {
+        background: #ebf8ff;
+        border-left: 4px solid #3182ce;
+        border-radius: 6px;
+        padding: 0.9rem 1.1rem;
+        color: #2c5282;
+        font-size: 0.9rem;
+        margin: 0.6rem 0;
+    }
+    .success-card {
+        background: #f0fff4;
+        border-left: 4px solid #38a169;
+        border-radius: 6px;
+        padding: 0.9rem 1.1rem;
+        color: #22543d;
+        font-size: 0.9rem;
+        margin: 0.6rem 0;
+    }
+    .error-card {
+        background: #fff5f5;
+        border-left: 4px solid #e53e3e;
+        border-radius: 6px;
+        padding: 0.9rem 1.1rem;
+        color: #742a2a;
+        font-size: 0.9rem;
+        margin: 0.6rem 0;
+    }
+    .warning-card {
+        background: #fffaf0;
+        border-left: 4px solid #ed8936;
+        border-radius: 6px;
+        padding: 0.9rem 1.1rem;
+        color: #7b341e;
+        font-size: 0.9rem;
+        margin: 0.6rem 0;
     }
 
-    /* File uploader */
+    /* ============================================
+       FILE UPLOADER
+       ============================================ */
     [data-testid="stFileUploaderDropzone"] {
-        background: linear-gradient(135deg, #f8fafc 0%, #e8eef5 100%);
-        border: 2px dashed #1f4e79;
+        background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+        border: 2px dashed #cbd5e0;
         border-radius: 10px;
-        padding: 1.5rem;
+        padding: 2rem;
+    }
+    [data-testid="stFileUploaderDropzone"]:hover {
+        background: linear-gradient(135deg, #ebf8ff 0%, #bee3f8 100%);
+        border-color: #3182ce;
+    }
+    [data-testid="stFileUploaderDropzone"] section {
+        color: #2d3748;
     }
 
-    /* Botones */
+    /* ============================================
+       RADIO BUTTONS
+       ============================================ */
+    .stRadio > label {
+        font-weight: 600 !important;
+        color: #2d3748 !important;
+    }
+    .stRadio [role="radiogroup"] {
+        gap: 0.5rem;
+    }
+
+    /* ============================================
+       BOTONES
+       ============================================ */
     .stButton>button {
-        background: linear-gradient(135deg, #1f4e79 0%, #2c5282 100%);
-        color: white;
-        font-weight: 600;
-        border-radius: 8px;
-        padding: 0.55rem 1.4rem;
-        border: none;
-        box-shadow: 0 3px 10px rgba(31, 78, 121, 0.25);
+        background: #1a365d !important;
+        color: white !important;
+        font-weight: 600 !important;
+        font-size: 0.95rem !important;
+        border-radius: 8px !important;
+        padding: 0.7rem 1.8rem !important;
+        border: none !important;
+        box-shadow: 0 1px 3px rgba(26, 54, 93, 0.2) !important;
     }
     .stButton>button:hover {
-        box-shadow: 0 5px 16px rgba(31, 78, 121, 0.4);
-        transform: translateY(-1px);
+        background: #2c5282 !important;
+        box-shadow: 0 4px 12px rgba(26, 54, 93, 0.3) !important;
     }
     .stDownloadButton>button {
-        background: linear-gradient(135deg, #15803d 0%, #16a34a 100%);
-        color: white;
-        font-weight: 600;
-        border-radius: 8px;
-        padding: 0.5rem 1.2rem;
-        border: none;
+        background: #16a34a !important;
+        color: white !important;
+        font-weight: 600 !important;
+        font-size: 0.95rem !important;
+        border-radius: 8px !important;
+        padding: 0.7rem 1.8rem !important;
+        border: none !important;
+        box-shadow: 0 1px 3px rgba(22, 163, 74, 0.2) !important;
+    }
+    .stDownloadButton>button:hover {
+        background: #15803d !important;
+        box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3) !important;
     }
 
-    /* Tabs */
+    /* ============================================
+       TABS
+       ============================================ */
     .stTabs [data-baseweb="tab-list"] {
-        gap: 0.3rem;
-        border-bottom: 2px solid #e5e9f0;
+        gap: 0;
+        border-bottom: 2px solid #e2e8f0;
     }
     .stTabs [data-baseweb="tab"] {
         background: transparent;
-        border-radius: 6px 6px 0 0;
-        padding: 0.4rem 0.9rem;
-        font-weight: 500;
-        color: #6b7785;
+        padding: 0.7rem 1.3rem;
+        font-weight: 600;
+        color: #718096;
+        font-size: 0.95rem;
     }
     .stTabs [aria-selected="true"] {
         background: transparent !important;
-        color: #1f4e79 !important;
-        border-bottom: 2px solid #1f4e79;
+        color: #1a365d !important;
+        border-bottom: 3px solid #1a365d;
         margin-bottom: -2px;
     }
 
-    /* Alerts */
-    .info-card {
-        background: #eff6ff;
-        border-left: 4px solid #3b82f6;
-        border-radius: 6px;
-        padding: 0.7rem 0.9rem;
-        color: #1e40af;
-        font-size: 0.88rem;
-        margin: 0.4rem 0;
-    }
-    .success-card {
-        background: #f0fdf4;
-        border-left: 4px solid #16a34a;
-        border-radius: 6px;
-        padding: 0.7rem 0.9rem;
-        color: #14532d;
-        font-size: 0.88rem;
-        margin: 0.4rem 0;
-    }
-    .error-card {
-        background: #fef2f2;
-        border-left: 4px solid #dc2626;
-        border-radius: 6px;
-        padding: 0.7rem 0.9rem;
-        color: #7f1d1d;
-        font-size: 0.88rem;
-        margin: 0.4rem 0;
-    }
-    .warning-card {
-        background: #fffbeb;
-        border-left: 4px solid #f59e0b;
-        border-radius: 6px;
-        padding: 0.7rem 0.9rem;
-        color: #78350f;
-        font-size: 0.88rem;
-        margin: 0.4rem 0;
+    /* ============================================
+       MULTISELECT
+       ============================================ */
+    .stMultiSelect [data-baseweb="tag"] {
+        background: #ebf8ff !important;
+        color: #2c5282 !important;
+        border: none !important;
     }
 
+    /* ============================================
+       METRIC
+       ============================================ */
+    [data-testid="stMetricValue"] {
+        font-size: 1.8rem !important;
+        font-weight: 800 !important;
+    }
+    [data-testid="stMetricLabel"] {
+        font-size: 0.85rem !important;
+        font-weight: 600 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.04em !important;
+        color: #718096 !important;
+    }
+
+    /* Code */
     code {
-        background: #f0f4f8;
-        padding: 0.1rem 0.35rem;
+        background: #edf2f7;
+        padding: 0.15rem 0.45rem;
         border-radius: 4px;
-        font-size: 0.85em;
-        color: #1f4e79;
+        font-size: 0.88em;
+        color: #2c5282;
+        font-weight: 500;
     }
 
-    /* Scrollbar */
-    section[data-testid="stSidebar"] [data-testid="stSidebarContent"]::-webkit-scrollbar {
-        width: 4px;
+    /* DataFrames */
+    .stDataFrame {
+        border-radius: 8px;
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
     }
-    section[data-testid="stSidebar"] [data-testid="stSidebarContent"]::-webkit-scrollbar-thumb {
-        background: #cbd5e0;
-        border-radius: 2px;
-    }
+
+    /* Espaciado general entre elementos */
+    .element-container { margin-bottom: 0.5rem; }
     </style>
     """,
     unsafe_allow_html=True,
@@ -322,7 +345,12 @@ def load_models():
     except FileNotFoundError as e:
         st.error(
             f"❌ Archivo no encontrado: **{e.filename}**\n\n"
-            "Necesitas los 5 archivos `.pkl` junto a `app.py`."
+            "Asegúrate de que los 5 archivos `.pkl` estén junto a `app.py`:\n"
+            "- `preprocessor.pkl`\n"
+            "- `random_forest_model.pkl`\n"
+            "- `feature_names.pkl`\n"
+            "- `categorical_options.pkl`\n"
+            "- `feature_defaults.pkl`"
         )
         st.stop()
 
@@ -331,27 +359,93 @@ preprocessor, model, feature_names, categorical_options, feature_defaults = load
 
 
 # ============================================================
-# MODOS DE COLUMNAS
+# MAPEO DE NOMBRES DE COLUMNAS (FLEXIBLE)
 # ============================================================
-# Mapeo de nombres amigables a nombres internos del modelo
-NOMBRES_AMIGABLES = {
-    "Age": "age",
-    "Sex": "personal_status",
-    "Job": "job",
-    "Housing": "housing",
-    "Saving accounts": "savings_status",
-    "Checking account": "checking_status",
-    "Credit amount": "credit_amount",
-    "Duration": "duration",
-    "Purpose": "purpose",
+# Mapeo: nombre en el archivo del usuario -> nombre interno del modelo
+MAPEO_NOMBRES = {
+    # Age
+    "age": "age", "edad": "age", "años": "age", "anos": "age", "year": "age", "years": "age",
+    # Sex / personal_status
+    "sex": "personal_status", "sexo": "personal_status", "genero": "personal_status",
+    "gender": "personal_status", "personal_status": "personal_status",
+    "personal status": "personal_status", "estado_civil": "personal_status",
+    # Job
+    "job": "job", "trabajo": "job", "empleo": "job", "ocupacion": "job", "occupation": "job",
+    # Housing
+    "housing": "housing", "vivienda": "housing", "casa": "housing", "house": "housing",
+    # Saving accounts
+    "saving accounts": "savings_status", "savings": "savings_status",
+    "saving_accounts": "savings_status", "savings_status": "savings_status",
+    "ahorros": "savings_status", "cuenta de ahorros": "savings_status",
+    "cuenta_de_ahorros": "savings_status", "ahorro": "savings_status",
+    # Checking account
+    "checking account": "checking_status", "checking": "checking_status",
+    "checking_account": "checking_status", "checking_status": "checking_status",
+    "cuenta corriente": "checking_status", "corriente": "checking_status",
+    "cuenta_corriente": "checking_status",
+    # Credit amount
+    "credit amount": "credit_amount", "credit_amount": "credit_amount", "amount": "credit_amount",
+    "monto": "credit_amount", "monto del credito": "credit_amount", "monto_del_credito": "credit_amount",
+    "monto de credito": "credit_amount", "credito": "credit_amount", "credit": "credit_amount",
+    "credit_amount": "credit_amount",
+    # Duration
+    "duration": "duration", "duracion": "duration", "plazo": "duration", "meses": "duration", "months": "duration",
+    # Purpose
+    "purpose": "purpose", "proposito": "purpose", "motivo": "purpose", "objetivo": "purpose",
+    "reason": "purpose",
 }
 
-# Columnas que el usuario puede elegir
-COLUMNAS_SIMPLIFICADAS = list(NOMBRES_AMIGABLES.keys())
+# Las 9 columnas del modo simplificado
+COLUMNAS_SIMPLIFICADAS = [
+    "age", "personal_status", "job", "housing",
+    "savings_status", "checking_status",
+    "credit_amount", "duration", "purpose",
+]
+
+
+def normalizar_columna(col: str) -> str:
+    """Normaliza un nombre de columna: lowercase, sin acentos, sin espacios extra."""
+    s = str(col).strip().lower()
+    # Quitar acentos
+    s = (s.replace("á", "a").replace("é", "e").replace("í", "i")
+           .replace("ó", "o").replace("ú", "u").replace("ñ", "n"))
+    # Quitar guiones bajos y reemplazar por espacios
+    s = re.sub(r"[_\-]+", " ", s)
+    # Quitar espacios múltiples
+    s = re.sub(r"\s+", " ", s)
+    return s
+
+
+def mapear_columnas(df: pd.DataFrame) -> tuple:
+    """Mapea columnas del usuario a nombres internos. Devuelve (df_mapeado, mapeo_info)."""
+    df = df.copy()
+    rename = {}
+    info = []
+    for col_original in df.columns:
+        col_norm = normalizar_columna(col_original)
+        if col_norm in MAPEO_NOMBRES:
+            target = MAPEO_NOMBRES[col_norm]
+            if target not in rename.values():
+                rename[col_original] = target
+                info.append({"original": col_original, "interno": target, "match": "exacto"})
+            else:
+                info.append({"original": col_original, "interno": None, "match": "duplicado"})
+        else:
+            # Intentar match parcial
+            for key, val in MAPEO_NOMBRES.items():
+                if key in col_norm or col_norm in key:
+                    if val not in rename.values():
+                        rename[col_original] = val
+                        info.append({"original": col_original, "interno": val, "match": "parcial"})
+                        break
+            else:
+                info.append({"original": col_original, "interno": None, "match": "sin match"})
+    df = df.rename(columns=rename)
+    return df, info
 
 
 # ============================================================
-# UTILIDADES DE CARGA
+# UTILIDADES DE CARGA DE ARCHIVOS
 # ============================================================
 COLUMNAS_UCI = [
     "checking_status", "duration", "credit_history", "purpose",
@@ -482,23 +576,11 @@ def cargar_archivo_robusto(archivo) -> pd.DataFrame:
         if df is not None:
             return decodificar_codigos_uci(df)
 
-    raise ValueError("No se pudo parsear el archivo.")
+    raise ValueError("No se pudo parsear el archivo. Verifica el formato.")
 
 
-def normalizar_nombres_columnas(df: pd.DataFrame) -> pd.DataFrame:
-    """Mapea nombres amigables a nombres internos del modelo."""
-    df = df.copy()
-    rename = {}
-    for col_amigable, col_interna in NOMBRES_AMIGABLES.items():
-        if col_amigable in df.columns and col_interna not in df.columns:
-            rename[col_amigable] = col_interna
-    if rename:
-        df = df.rename(columns=rename)
-    return df
-
-
-def aplicar_defaults(df: pd.DataFrame, columnas_presentes: list) -> pd.DataFrame:
-    """Llena las features faltantes con sus valores por defecto del training set."""
+def aplicar_defaults(df: pd.DataFrame) -> tuple:
+    """Llena features faltantes con defaults. Devuelve (df_completo, defaults_usados)."""
     df = df.copy()
     defaults_usados = []
     for col in feature_names:
@@ -535,49 +617,14 @@ def predecir_lote(df: pd.DataFrame) -> pd.DataFrame:
 
 def colorear_prediccion(val):
     if "Solvente" in str(val):
-        return "background-color: #dcfce7; color: #14532d; font-weight: 600"
+        return "background-color: #c6f6d5; color: #22543d; font-weight: 600"
     if "Moroso" in str(val):
-        return "background-color: #fee2e2; color: #7f1d1d; font-weight: 600"
+        return "background-color: #fed7d7; color: #742a2a; font-weight: 600"
     return ""
 
 
 # ============================================================
-# SIDEBAR
-# ============================================================
-with st.sidebar:
-    st.markdown(
-        '<div style="text-align:center; padding:0.3rem 0 0.5rem 0;">'
-        '<div style="font-size:1.4rem; line-height:1;">🏦</div>'
-        '<div style="font-weight:800; color:#1e3a5f; font-size:1rem; margin-top:0.2rem;">Credit Scoring</div>'
-        '<div style="color:#9ca3af; font-size:0.7rem; margin-top:0.1rem;">UPAO</div>'
-        "</div>",
-        unsafe_allow_html=True,
-    )
-    st.markdown("---")
-
-    st.markdown('<p class="sb-section-title">Modelo</p>', unsafe_allow_html=True)
-    st.markdown('<div class="sb-metric"><div class="lbl">Accuracy</div><div class="val">84.05%</div></div>', unsafe_allow_html=True)
-    st.markdown('<div class="sb-metric"><div class="lbl">AUC-ROC</div><div class="val">0.927</div></div>', unsafe_allow_html=True)
-    st.markdown('<div class="sb-metric"><div class="lbl">Gini</div><div class="val">0.854</div></div>', unsafe_allow_html=True)
-    st.markdown('<div class="sb-metric"><div class="lbl">Test set</div><div class="val">420 clientes</div></div>', unsafe_allow_html=True)
-
-    st.markdown('<p class="sb-section-title">Pipeline</p>', unsafe_allow_html=True)
-    st.markdown(
-        '<div style="font-size:0.75rem; color:#4a5568; line-height:1.7;">'
-        "MinMaxScaler · OrdinalEncoder<br>SMOTE (50/50)<br>Random Forest (100 árboles)"
-        "</div>",
-        unsafe_allow_html=True,
-    )
-
-    st.markdown("---")
-    st.markdown(
-        '<div style="font-size:0.68rem; color:#9ca3af; text-align:center;">v1.1</div>',
-        unsafe_allow_html=True,
-    )
-
-
-# ============================================================
-# HEADER MINIMALISTA
+# HEADER
 # ============================================================
 st.markdown(
     """
@@ -591,66 +638,59 @@ st.markdown(
 
 
 # ============================================================
-# SELECTOR DE MODO DE COLUMNAS
+# SELECTOR DE MODO
 # ============================================================
-st.markdown('<p class="section-title">Modo de análisis</p>', unsafe_allow_html=True)
+st.markdown('<p class="section-title">1. Modo de análisis</p>', unsafe_allow_html=True)
 
 modo = st.radio(
-    "Selecciona qué columnas tendrá tu archivo",
-    options=[
-        "Completo (20 columnas)",
-        "Simplificado (9 columnas)",
-        "Personalizado",
-    ],
+    "Selecciona el modo",
+    options=["Completo (20 columnas)", "Simplificado (9 columnas)", "Personalizado"],
     horizontal=True,
     label_visibility="collapsed",
 )
 
-# Mostrar info del modo seleccionado
 if modo == "Completo (20 columnas)":
     st.markdown(
-        '<div class="info-card">📋 El archivo debe contener las <b>20 columnas</b> completas del modelo '
-        "(checking_status, duration, credit_history, purpose, credit_amount, savings_status, employment, "
-        "installment_commitment, personal_status, other_parties, residence_since, property_magnitude, age, "
-        "other_payment_plans, housing, existing_credits, job, num_dependents, own_telephone, foreign_worker).</div>",
+        '<div class="info-card">El archivo debe contener las <b>20 columnas</b> del modelo. '
+        "Si tu archivo tiene menos, usa el modo Simplificado o Personalizado.</div>",
         unsafe_allow_html=True,
     )
-    columnas_esperadas = feature_names
-    requiere_personalizar = False
+    columnas_requeridas = feature_names
 elif modo == "Simplificado (9 columnas)":
     st.markdown(
-        f'<div class="info-card">📋 El archivo debe contener solo estas <b>9 columnas</b>: '
-        + ", ".join(f"<code>{c}</code>" for c in COLUMNAS_SIMPLIFICADAS)
-        + ". Las 11 restantes se completan automáticamente con valores típicos del dataset.</div>",
+        '<div class="info-card">Tu archivo necesita solo estas <b>9 columnas</b> '
+        "(reconocemos variaciones como <code>Edad</code>/<code>Age</code>, "
+        "<code>Sexo</code>/<code>Sex</code>, etc.). Las 11 restantes se completan automáticamente.<br><br>"
+        "<b>Columnas reconocidas:</b> "
+        "<code>Age</code>, <code>Sex</code>, <code>Job</code>, <code>Housing</code>, "
+        "<code>Saving accounts</code>, <code>Checking account</code>, "
+        "<code>Credit amount</code>, <code>Duration</code>, <code>Purpose</code>"
+        "</div>",
         unsafe_allow_html=True,
     )
-    columnas_esperadas = [NOMBRES_AMIGABLES[c] for c in COLUMNAS_SIMPLIFICADAS]
-    requiere_personalizar = False
+    columnas_requeridas = COLUMNAS_SIMPLIFICADAS
 else:  # Personalizado
-    cols_seleccionadas = st.multiselect(
+    cols_sel = st.multiselect(
         "Selecciona las columnas que tendrá tu archivo",
         options=feature_names,
         default=feature_names,
         help="Las columnas no seleccionadas se completan con valores por defecto del training set",
     )
-    columnas_esperadas = cols_seleccionadas
-    requiere_personalizar = True
-    if len(cols_seleccionadas) == 0:
-        st.markdown(
-            '<div class="warning-card">⚠️ Selecciona al menos una columna.</div>',
-            unsafe_allow_html=True,
-        )
+    columnas_requeridas = cols_sel
+    if len(cols_sel) == 0:
+        st.markdown('<div class="warning-card">⚠️ Selecciona al menos una columna.</div>', unsafe_allow_html=True)
     else:
         st.markdown(
-            f'<div class="info-card">📋 Tu archivo tendrá <b>{len(cols_seleccionadas)} columnas</b>. '
-            f"Las {20 - len(cols_seleccionadas)} restantes se completan automáticamente.</div>",
+            f'<div class="info-card">Tu archivo tendrá <b>{len(cols_sel)} columnas</b>. '
+            f"Las {20 - len(cols_sel)} restantes se completan automáticamente con valores típicos del dataset.</div>",
             unsafe_allow_html=True,
         )
+
 
 # ============================================================
 # UPLOAD
 # ============================================================
-st.markdown('<p class="section-title">Cargar archivo</p>', unsafe_allow_html=True)
+st.markdown('<p class="section-title">2. Cargar archivo</p>', unsafe_allow_html=True)
 
 archivo_subido = st.file_uploader(
     "Arrastra o selecciona tu archivo CSV/ARFF",
@@ -659,75 +699,76 @@ archivo_subido = st.file_uploader(
     label_visibility="collapsed",
 )
 
-# Empty state
-if archivo_subido is None and "resultados" not in st.session_state:
-    st.markdown(
-        '<div style="text-align:center; padding:2rem 1rem; color:#9ca3af; font-size:0.9rem;">'
-        "Esperando archivo...</div>",
-        unsafe_allow_html=True,
-    )
-
-if archivo_subido is not None and len(columnas_esperadas) > 0:
+# Procesar
+if archivo_subido is not None and len(columnas_requeridas) > 0:
     try:
         with st.spinner("Leyendo archivo..."):
             df_input = cargar_archivo_robusto(archivo_subido)
     except Exception as e:
         st.markdown(
-            f'<div class="error-card">❌ <b>No se pudo leer el archivo</b><br><br>{e}</div>',
+            f'<div class="error-card"><b>No se pudo leer el archivo</b><br><br>{e}<br><br>'
+            "Verifica que sea un CSV o ARFF válido.</div>",
             unsafe_allow_html=True,
         )
         st.stop()
-
-    # Normalizar nombres (amigables -> internos)
-    df_input = normalizar_nombres_columnas(df_input)
 
     # Quitar columna target si existe
     if "class" in df_input.columns:
         df_input = df_input.drop(columns=["class"])
 
+    # Mapear nombres de columnas (amigables -> internos)
+    df_input, info_mapeo = mapear_columnas(df_input)
+
     # Verificar columnas presentes
-    presentes = [c for c in columnas_esperadas if c in df_input.columns]
-    faltantes = [c for c in columnas_esperadas if c not in df_input.columns]
+    presentes = [c for c in columnas_requeridas if c in df_input.columns]
+    faltantes = [c for c in columnas_requeridas if c not in df_input.columns]
 
     if not presentes:
         st.markdown(
-            f'<div class="error-card">❌ Ninguna de las columnas esperadas está en el archivo.<br><br>'
-            f"<b>Esperadas ({len(columnas_esperadas)}):</b> "
-            + ", ".join(f"<code>{c}</code>" for c in columnas_esperadas)
+            f'<div class="error-card"><b>Ninguna columna reconocida</b><br><br>'
+            f"Tu archivo tiene: {', '.join(f'<code>{c}</code>' for c in df_input.columns[:10])}<br><br>"
+            f"<b>Esperadas ({len(columnas_requeridas)}):</b> "
+            + ", ".join(f"<code>{c}</code>" for c in columnas_requeridas)
             + "</div>",
             unsafe_allow_html=True,
         )
         st.stop()
 
-    # Si modo completo, requerir TODAS las 20
+    # Mostrar tabla de mapeo
+    with st.expander(f"🔍 Mapeo de columnas ({len(presentes)} reconocidas, {len(faltantes)} por defecto)", expanded=False):
+        mapeo_df = pd.DataFrame([
+            {"Tu columna": m["original"], "Mapeada a": m["interno"] or "—", "Tipo": m["match"]}
+            for m in info_mapeo
+        ])
+        st.dataframe(mapeo_df, use_container_width=True, hide_index=True)
+
+    # Si modo completo, requerir las 20
     if modo == "Completo (20 columnas)" and len(presentes) < 20:
         st.markdown(
-            f'<div class="error-card">❌ Modo completo requiere las <b>20 columnas</b>.<br><br>'
-            f"<b>Faltan {len(faltantes)}:</b> "
+            f'<div class="error-card"><b>Modo completo requiere las 20 columnas</b><br><br>'
+            f"Solo se encontraron {len(presentes)} de 20. Faltan: "
             + ", ".join(f"<code>{c}</code>" for c in faltantes[:5])
             + ("..." if len(faltantes) > 5 else "")
-            + '<br><br>💡 Cambia a modo <b>"Simplificado"</b> o <b>"Personalizado"</b> '
-            "si tu archivo no tiene todas las columnas.</div>",
+            + '<br><br>💡 Cambia a modo <b>Simplificado</b> o <b>Personalizado</b>.</div>',
             unsafe_allow_html=True,
         )
         st.stop()
 
-    # Aplicar defaults a las columnas faltantes
-    df_completo, defaults_usados = aplicar_defaults(df_input, presentes)
+    # Aplicar defaults
+    df_completo, defaults_usados = aplicar_defaults(df_input)
 
     if defaults_usados:
         st.markdown(
-            f'<div class="info-card">ℹ️ <b>{len(defaults_usados)} columnas</b> completadas automáticamente '
-            f"con valores por defecto del training set: "
-            + ", ".join(f"<code>{c}</code>" for c in defaults_usados[:4])
-            + ("..." if len(defaults_usados) > 4 else "")
+            f'<div class="info-card"><b>{len(defaults_usados)} columnas</b> completadas con valores por defecto: '
+            + ", ".join(f"<code>{c}</code>" for c in defaults_usados[:5])
+            + ("..." if len(defaults_usados) > 5 else "")
             + "</div>",
             unsafe_allow_html=True,
         )
 
     st.markdown(
-        f'<div class="success-card">✅ <b>Archivo listo</b> · {len(df_input)} clientes · '
-        f"{len(presentes)} columnas del usuario + {len(defaults_usados)} por defecto</div>",
+        f'<div class="success-card"><b>Listo</b> · {len(df_input)} clientes · '
+        f"{len(presentes)} columnas del archivo + {len(defaults_usados)} por defecto</div>",
         unsafe_allow_html=True,
     )
 
@@ -735,6 +776,7 @@ if archivo_subido is not None and len(columnas_esperadas) > 0:
         st.dataframe(df_input.head(5), use_container_width=True, hide_index=True)
 
     # Botón de predicción
+    st.markdown("")
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
         if st.button("Predecir", type="primary", use_container_width=True):
@@ -742,7 +784,7 @@ if archivo_subido is not None and len(columnas_esperadas) > 0:
                 try:
                     st.session_state["resultados"] = predecir_lote(df_completo)
                 except Exception as e:
-                    st.error(f"❌ Error: {e}")
+                    st.error(f"Error: {e}")
                     st.stop()
 
 
@@ -809,31 +851,34 @@ if "resultados" in st.session_state:
     st.markdown('<p class="section-title">Distribución de riesgo</p>', unsafe_allow_html=True)
     c1, c2 = st.columns(2)
     with c1:
+        st.markdown("**Por nivel de riesgo**")
         distribucion = df_resultados["Nivel de Riesgo"].value_counts().reindex(
             ["Bajo", "Moderado", "Alto", "Muy Alto"], fill_value=0
         )
-        st.bar_chart(distribucion, color=["#15803d"], height=280)
+        st.bar_chart(distribucion, color=["#16a34a"], height=300)
     with c2:
+        st.markdown("**Probabilidad de morosidad**")
         proba = df_resultados["Prob. Moroso (%)"]
         hist = pd.cut(proba, bins=[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]).value_counts().sort_index()
         hist.index = hist.index.astype(str)
-        st.bar_chart(hist, color=["#1f4e79"], height=280)
+        st.bar_chart(hist, color=["#1a365d"], height=300)
 
 
 # ============================================================
-# TABS DE INFORMACIÓN
+# TABS DE INFO
 # ============================================================
 st.markdown("---")
+st.markdown('<p class="section-title">Información</p>', unsafe_allow_html=True)
 
-tab1, tab2, tab3 = st.tabs(["Métricas", "Variables", "Acerca de"])
+tab1, tab2, tab3 = st.tabs(["Métricas del modelo", "Variables", "Acerca de"])
 
 with tab1:
     c1, c2, c3, c4 = st.columns(4)
     c1.metric("Accuracy", "84.05%")
     c2.metric("AUC-ROC", "0.927")
     c3.metric("Gini", "0.854")
-    c4.metric("Test", "420")
-    st.caption("Métricas sobre test set balanceado con SMOTE.")
+    c4.metric("Test set", "420")
+    st.caption("Métricas obtenidas sobre el test set de 420 instancias balanceadas con SMOTE.")
 
 with tab2:
     descripciones = {
@@ -859,10 +904,7 @@ with tab2:
         "foreign_worker": "Trabajador extranjero",
     }
     tabla = pd.DataFrame(
-        [
-            {"Variable": col, "Descripción": descripciones.get(col, "")}
-            for col in feature_names
-        ]
+        [{"Variable": col, "Descripción": descripciones.get(col, "")} for col in feature_names]
     )
     st.dataframe(tabla, use_container_width=True, hide_index=True)
 
@@ -876,9 +918,15 @@ with tab3:
         **Proyecto:** Aprendizaje Estadístico · UPAO
 
         **Dataset:** German Credit Data (1000 instancias, 20 features, 1 target)
-        Originalmente de Prof. Dr. Hans Hofmann (Universität Hamburg).
+        Originalmente del Prof. Dr. Hans Hofmann (Universität Hamburg).
 
-        **Pipeline:** MinMaxScaler → OrdinalEncoder → SMOTE (50/50) → Random Forest (100 árboles)
+        **Pipeline de preprocesamiento:**
+        1. Carga y limpieza
+        2. OrdinalEncoder en 13 variables categóricas
+        3. MinMaxScaler en 7 variables numéricas
+        4. SMOTE (300 bad → 700 bad sintéticas, 50/50 balance)
+        5. Split 70/30 estratificado
+        6. Random Forest (100 árboles, class_weight=balanced)
 
         **Fuente:** [credit-g.arff](https://raw.githubusercontent.com/Waikato/weka-3.8/master/wekadocs/data/credit-g.arff)
         """
