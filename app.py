@@ -25,7 +25,7 @@ st.set_page_config(
 
 
 # ============================================================
-# CSS - PROFESIONAL Y LIMPIO
+# CSS - PROFESIONAL Y LIMPIO (tema claro forzado)
 # ============================================================
 st.markdown(
     """
@@ -33,10 +33,24 @@ st.markdown(
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
     /* ============================================
+       FORZAR TEMA CLARO - sin importar el modo del navegador
+       ============================================ */
+    :root {
+        color-scheme: light !important;
+    }
+    .stApp, [data-testid="stApp"], .main, .block-container,
+    [data-testid="stAppViewContainer"], section.main {
+        background-color: #ffffff !important;
+        color: #1a365d !important;
+    }
+
+    /* ============================================
        BASE
        ============================================ */
-    html, body, [class*="css"], .stMarkdown, p, span, div {
+    html, body, [class*="css"], .stMarkdown, p, span, div,
+    .stRadio label, .stMultiSelect label, .stFileUploader label {
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        color: #1a365d;
     }
 
     #MainMenu { visibility: hidden; }
@@ -50,36 +64,39 @@ st.markdown(
         max-width: 1200px;
         padding-left: 3rem;
         padding-right: 3rem;
+        background-color: #ffffff;
     }
     [data-testid="stAppViewContainer"] > .main {
         max-width: 1200px;
         margin: 0 auto;
+        background-color: #ffffff;
     }
 
     /* ============================================
        TIPOGRAFÍA (más grande y legible)
        ============================================ */
-    h1 { font-size: 2.4rem !important; font-weight: 800 !important; }
-    h2 { font-size: 1.6rem !important; font-weight: 700 !important; }
-    h3 { font-size: 1.2rem !important; font-weight: 700 !important; }
-    p, li { font-size: 0.95rem !important; line-height: 1.6 !important; }
-    label, .stMarkdown { font-size: 0.95rem !important; }
+    h1 { font-size: 2.4rem !important; font-weight: 800 !important; color: #1a365d !important; }
+    h2 { font-size: 1.6rem !important; font-weight: 700 !important; color: #1a365d !important; }
+    h3 { font-size: 1.2rem !important; font-weight: 700 !important; color: #1a365d !important; }
+    p, li { font-size: 0.95rem !important; line-height: 1.6 !important; color: #2d3748 !important; }
+    label { font-size: 0.95rem !important; color: #2d3748 !important; font-weight: 500 !important; }
 
     /* ============================================
        HEADER
        ============================================ */
     .app-header {
         padding: 2rem 0 1.5rem 0;
-        border-bottom: 1px solid #e5e9f0;
+        border-bottom: 2px solid #e2e8f0;
         margin-bottom: 2rem;
+        background-color: #ffffff;
     }
     .app-header h1 {
-        color: #1a365d;
+        color: #1a365d !important;
         margin: 0;
         letter-spacing: -0.025em;
     }
     .app-header p {
-        color: #718096;
+        color: #4a5568 !important;
         margin: 0.4rem 0 0 0;
         font-size: 1.05rem;
     }
@@ -88,21 +105,21 @@ st.markdown(
        SECTION TITLES
        ============================================ */
     .section-title {
-        font-size: 0.78rem;
-        font-weight: 700;
-        color: #4a5568;
+        font-size: 0.85rem !important;
+        font-weight: 700 !important;
+        color: #1a365d !important;
         text-transform: uppercase;
         letter-spacing: 0.08em;
         margin: 1.8rem 0 0.8rem 0;
-        padding-bottom: 0.4rem;
-        border-bottom: 1px solid #edf2f7;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #cbd5e0;
     }
 
     /* ============================================
        CARDS
        ============================================ */
     .card {
-        background: #ffffff;
+        background: #ffffff !important;
         border: 1px solid #e2e8f0;
         border-radius: 10px;
         padding: 1.4rem 1.5rem;
@@ -116,7 +133,7 @@ st.markdown(
     }
     .card-desc {
         font-size: 0.88rem;
-        color: #718096;
+        color: #4a5568;
         line-height: 1.5;
         margin: 0;
     }
@@ -125,14 +142,14 @@ st.markdown(
        STAT CARDS (más grandes)
        ============================================ */
     .stat-card {
-        background: #ffffff;
+        background: #ffffff !important;
         padding: 1.3rem 1.4rem;
         border-radius: 10px;
         border: 1px solid #e2e8f0;
         height: 100%;
     }
     .stat-card .label {
-        color: #718096;
+        color: #4a5568 !important;
         font-size: 0.72rem;
         font-weight: 700;
         text-transform: uppercase;
@@ -143,58 +160,58 @@ st.markdown(
         font-weight: 800;
         line-height: 1.1;
         margin: 0.3rem 0 0 0;
-        color: #1a365d;
+        color: #1a365d !important;
     }
     .stat-card .delta {
-        color: #718096;
+        color: #4a5568 !important;
         font-size: 0.85rem;
         margin-top: 0.3rem;
     }
     .stat-card.success { border-left: 4px solid #16a34a; }
-    .stat-card.success .value { color: #15803d; }
+    .stat-card.success .value { color: #15803d !important; }
     .stat-card.danger { border-left: 4px solid #dc2626; }
-    .stat-card.danger .value { color: #b91c1c; }
+    .stat-card.danger .value { color: #b91c1c !important; }
     .stat-card.warning { border-left: 4px solid #f59e0b; }
-    .stat-card.warning .value { color: #b45309; }
+    .stat-card.warning .value { color: #b45309 !important; }
     .stat-card.info { border-left: 4px solid #3b82f6; }
-    .stat-card.info .value { color: #1e40af; }
+    .stat-card.info .value { color: #1e40af !important; }
 
     /* ============================================
        ALERTAS
        ============================================ */
     .info-card {
-        background: #ebf8ff;
+        background: #ebf8ff !important;
         border-left: 4px solid #3182ce;
         border-radius: 6px;
         padding: 0.9rem 1.1rem;
-        color: #2c5282;
+        color: #2c5282 !important;
         font-size: 0.9rem;
         margin: 0.6rem 0;
     }
     .success-card {
-        background: #f0fff4;
+        background: #f0fff4 !important;
         border-left: 4px solid #38a169;
         border-radius: 6px;
         padding: 0.9rem 1.1rem;
-        color: #22543d;
+        color: #22543d !important;
         font-size: 0.9rem;
         margin: 0.6rem 0;
     }
     .error-card {
-        background: #fff5f5;
+        background: #fff5f5 !important;
         border-left: 4px solid #e53e3e;
         border-radius: 6px;
         padding: 0.9rem 1.1rem;
-        color: #742a2a;
+        color: #742a2a !important;
         font-size: 0.9rem;
         margin: 0.6rem 0;
     }
     .warning-card {
-        background: #fffaf0;
+        background: #fffaf0 !important;
         border-left: 4px solid #ed8936;
         border-radius: 6px;
         padding: 0.9rem 1.1rem;
-        color: #7b341e;
+        color: #7b341e !important;
         font-size: 0.9rem;
         margin: 0.6rem 0;
     }
@@ -203,17 +220,21 @@ st.markdown(
        FILE UPLOADER
        ============================================ */
     [data-testid="stFileUploaderDropzone"] {
-        background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
-        border: 2px dashed #cbd5e0;
+        background: #f7fafc !important;
+        border: 2px dashed #3182ce !important;
         border-radius: 10px;
         padding: 2rem;
     }
     [data-testid="stFileUploaderDropzone"]:hover {
-        background: linear-gradient(135deg, #ebf8ff 0%, #bee3f8 100%);
-        border-color: #3182ce;
+        background: #ebf8ff !important;
+        border-color: #1a365d !important;
     }
     [data-testid="stFileUploaderDropzone"] section {
-        color: #2d3748;
+        color: #1a365d !important;
+    }
+    [data-testid="stFileUploaderDropzone"] button {
+        background-color: #1a365d !important;
+        color: white !important;
     }
 
     /* ============================================
@@ -221,10 +242,14 @@ st.markdown(
        ============================================ */
     .stRadio > label {
         font-weight: 600 !important;
-        color: #2d3748 !important;
+        color: #1a365d !important;
     }
     .stRadio [role="radiogroup"] {
-        gap: 0.5rem;
+        gap: 0.8rem;
+    }
+    .stRadio label[data-baseweb="radio"] {
+        color: #1a365d !important;
+        background-color: #ffffff !important;
     }
 
     /* ============================================
@@ -265,28 +290,52 @@ st.markdown(
     .stTabs [data-baseweb="tab-list"] {
         gap: 0;
         border-bottom: 2px solid #e2e8f0;
+        background-color: #ffffff;
     }
     .stTabs [data-baseweb="tab"] {
-        background: transparent;
+        background: #ffffff !important;
         padding: 0.7rem 1.3rem;
         font-weight: 600;
-        color: #718096;
+        color: #4a5568 !important;
         font-size: 0.95rem;
     }
     .stTabs [aria-selected="true"] {
-        background: transparent !important;
+        background: #ffffff !important;
         color: #1a365d !important;
         border-bottom: 3px solid #1a365d;
         margin-bottom: -2px;
     }
 
     /* ============================================
-       MULTISELECT
+       SELECTBOX / MULTISELECT
        ============================================ */
+    .stSelectbox [data-baseweb="select"], .stMultiSelect [data-baseweb="select"] {
+        background-color: #ffffff !important;
+        color: #1a365d !important;
+    }
     .stMultiSelect [data-baseweb="tag"] {
         background: #ebf8ff !important;
         color: #2c5282 !important;
         border: none !important;
+    }
+    [data-baseweb="popover"] {
+        background-color: #ffffff !important;
+    }
+
+    /* ============================================
+       EXPANDER
+       ============================================ */
+    [data-testid="stExpander"] {
+        background-color: #ffffff !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 8px !important;
+    }
+    [data-testid="stExpander"] details {
+        background-color: #ffffff !important;
+    }
+    [data-testid="stExpander"] summary {
+        color: #1a365d !important;
+        font-weight: 600 !important;
     }
 
     /* ============================================
@@ -295,22 +344,26 @@ st.markdown(
     [data-testid="stMetricValue"] {
         font-size: 1.8rem !important;
         font-weight: 800 !important;
+        color: #1a365d !important;
     }
     [data-testid="stMetricLabel"] {
         font-size: 0.85rem !important;
         font-weight: 600 !important;
         text-transform: uppercase !important;
         letter-spacing: 0.04em !important;
-        color: #718096 !important;
+        color: #4a5568 !important;
+    }
+    [data-testid="stMetricDelta"] {
+        color: #4a5568 !important;
     }
 
     /* Code */
     code {
-        background: #edf2f7;
+        background: #edf2f7 !important;
         padding: 0.15rem 0.45rem;
         border-radius: 4px;
         font-size: 0.88em;
-        color: #2c5282;
+        color: #1a365d !important;
         font-weight: 500;
     }
 
@@ -319,10 +372,21 @@ st.markdown(
         border-radius: 8px;
         overflow: hidden;
         border: 1px solid #e2e8f0;
+        background-color: #ffffff !important;
+    }
+
+    /* Caption */
+    .stCaption, [data-testid="stCaption"] {
+        color: #4a5568 !important;
     }
 
     /* Espaciado general entre elementos */
     .element-container { margin-bottom: 0.5rem; }
+
+    /* Streamlit interno */
+    [data-testid="stToolbar"], [data-testid="stDecoration"] {
+        display: none !important;
+    }
     </style>
     """,
     unsafe_allow_html=True,
