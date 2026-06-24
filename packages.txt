@@ -1,0 +1,5 @@
+build-essential
+gcc
+gfortran
+libopenblas-dev
+liblapack-dev
