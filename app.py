@@ -1,7 +1,7 @@
 """
 Credit Scoring - German Credit Data
-Aplicación Streamlit profesional con diseño moderno.
-Acepta archivos CSV/ARFF en múltiples formatos (con/sin headers, UCI, etc.).
+Aplicación Streamlit profesional con diseño moderno y centrado.
+Soporta multiples formatos de CSV (con/sin headers, UCI, latin-1, etc).
 """
 
 import io
@@ -19,22 +19,21 @@ st.set_page_config(
     page_title="Credit Scoring | German Credit",
     page_icon="🏦",
     layout="wide",
-    initial_sidebar_state="collapsed",
-    menu_items={
-        "About": "Credit Scoring App - UPAO - Aprendizaje Estadístico"
-    }
+    initial_sidebar_state="expanded",
+    menu_items={"About": "Credit Scoring - UPAO - Aprendizaje Estadístico"},
 )
 
 
 # ============================================================
-# CSS - DISEÑO LIMPIO Y PROFESIONAL
+# CSS - DISEÑO LIMPIO, CENTRADO Y ARMONIOSO
 # ============================================================
 st.markdown(
     """
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-    html, body, [class*="css"] {
+    /* Tipografía global */
+    html, body, [class*="css"], .stMarkdown, .stText {
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     }
 
@@ -43,46 +42,68 @@ st.markdown(
     footer { visibility: hidden; }
     header[data-testid="stHeader"] { background: transparent; }
 
-    /* Hero principal */
+    /* ============================================
+       LAYOUT: CONTENIDO CENTRADO Y ARMONIOSO
+       ============================================ */
+    .block-container {
+        padding-top: 2rem;
+        padding-bottom: 3rem;
+        max-width: 1100px;
+    }
+
+    /* Sidebar: ancho controlado */
+    section[data-testid="stSidebar"] {
+        width: 280px !important;
+        min-width: 280px !important;
+    }
+    section[data-testid="stSidebar"] .block-container {
+        max-width: 100%;
+        padding: 1.5rem 1rem;
+    }
+
+    /* ============================================
+       HERO
+       ============================================ */
     .hero {
         background: linear-gradient(135deg, #1e3a5f 0%, #2c5282 50%, #1f4e79 100%);
-        padding: 3rem 2.5rem;
+        padding: 2.5rem 2rem;
         border-radius: 16px;
         color: white;
-        margin-bottom: 2rem;
+        margin-bottom: 1.5rem;
         box-shadow: 0 10px 40px rgba(31, 78, 121, 0.2);
         position: relative;
         overflow: hidden;
     }
-    .hero::before {
+    .hero::after {
         content: "";
         position: absolute;
-        top: -50%;
-        right: -10%;
-        width: 400px;
-        height: 400px;
-        background: rgba(255, 255, 255, 0.05);
+        top: -60%;
+        right: -15%;
+        width: 350px;
+        height: 350px;
+        background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
         border-radius: 50%;
     }
     .hero h1 {
         color: white;
-        font-size: 2.5rem;
+        font-size: 2rem;
         font-weight: 800;
-        margin: 0 0 0.5rem 0;
+        margin: 0 0 0.4rem 0;
         letter-spacing: -0.02em;
         position: relative;
         z-index: 1;
     }
     .hero p {
-        color: rgba(255, 255, 255, 0.9);
-        font-size: 1.1rem;
+        color: rgba(255, 255, 255, 0.92);
+        font-size: 0.98rem;
         margin: 0;
-        font-weight: 400;
+        line-height: 1.5;
+        max-width: 700px;
         position: relative;
         z-index: 1;
     }
     .hero-badges {
-        margin-top: 1.5rem;
+        margin-top: 1.2rem;
         display: flex;
         gap: 0.5rem;
         flex-wrap: wrap;
@@ -93,124 +114,203 @@ st.markdown(
         background: rgba(255, 255, 255, 0.15);
         backdrop-filter: blur(10px);
         color: white;
-        padding: 0.4rem 0.9rem;
+        padding: 0.3rem 0.8rem;
         border-radius: 20px;
-        font-size: 0.85rem;
+        font-size: 0.8rem;
         font-weight: 500;
         border: 1px solid rgba(255, 255, 255, 0.2);
     }
 
-    /* Cards */
+    /* ============================================
+       SECCIONES
+       ============================================ */
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #1e3a5f;
+        margin: 1.5rem 0 0.4rem 0;
+        letter-spacing: -0.01em;
+    }
+    .section-subtitle {
+        color: #6b7785;
+        font-size: 0.9rem;
+        margin-bottom: 1.2rem;
+        line-height: 1.5;
+    }
+
+    /* ============================================
+       STAT CARDS
+       ============================================ */
     .stat-card {
         background: white;
-        padding: 1.5rem;
-        border-radius: 12px;
+        padding: 1.1rem 1.2rem;
+        border-radius: 10px;
         border: 1px solid #e5e9f0;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
         transition: all 0.2s ease;
+        height: 100%;
     }
     .stat-card:hover {
-        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-        transform: translateY(-1px);
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
     }
     .stat-card .label {
         color: #6b7785;
-        font-size: 0.85rem;
-        font-weight: 500;
+        font-size: 0.72rem;
+        font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.05em;
+        margin-bottom: 0.3rem;
     }
     .stat-card .value {
         color: #1e3a5f;
-        font-size: 2rem;
+        font-size: 1.6rem;
         font-weight: 700;
-        margin: 0.3rem 0 0 0;
+        line-height: 1.1;
+        margin: 0;
+    }
+    .stat-card .delta {
+        color: #6b7785;
+        font-size: 0.85rem;
+        font-weight: 500;
+        margin-top: 0.2rem;
     }
     .stat-card.success .value { color: #15803d; }
     .stat-card.danger .value { color: #b91c1c; }
     .stat-card.warning .value { color: #b45309; }
+    .stat-card.info .value { color: #1e40af; }
 
-    /* File uploader */
-    [data-testid="stFileUploaderDropzone"] {
-        background: linear-gradient(135deg, #f0f4f8 0%, #e8eef5 100%);
-        border: 2px dashed #1f4e79;
-        border-radius: 12px;
-        padding: 2rem;
+    /* ============================================
+       SIDEBAR METRICS (más compactos)
+       ============================================ */
+    .sb-metric {
+        background: #f8fafc;
+        padding: 0.6rem 0.8rem;
+        border-radius: 8px;
+        border-left: 3px solid #1f4e79;
+        margin-bottom: 0.5rem;
+    }
+    .sb-metric .lbl {
+        color: #6b7785;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+    .sb-metric .val {
+        color: #1e3a5f;
+        font-size: 1.05rem;
+        font-weight: 700;
+        margin-top: 0.1rem;
+    }
+    .sb-section-title {
+        color: #1e3a5f;
+        font-size: 0.78rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin: 1rem 0 0.5rem 0;
     }
 
-    /* Botones */
+    /* ============================================
+       FILE UPLOADER
+       ============================================ */
+    [data-testid="stFileUploaderDropzone"] {
+        background: linear-gradient(135deg, #f8fafc 0%, #e8eef5 100%);
+        border: 2px dashed #1f4e79;
+        border-radius: 12px;
+        padding: 1.5rem;
+    }
+    [data-testid="stFileUploaderDropzone"] section {
+        color: #1f4e79;
+    }
+
+    /* ============================================
+       BOTONES
+       ============================================ */
     .stButton>button {
         background: linear-gradient(135deg, #1f4e79 0%, #2c5282 100%);
         color: white;
         font-weight: 600;
-        border-radius: 10px;
-        padding: 0.75rem 2rem;
+        border-radius: 8px;
+        padding: 0.6rem 1.5rem;
         border: none;
-        box-shadow: 0 4px 12px rgba(31, 78, 121, 0.25);
+        box-shadow: 0 3px 10px rgba(31, 78, 121, 0.25);
         transition: all 0.2s ease;
     }
     .stButton>button:hover {
-        box-shadow: 0 6px 20px rgba(31, 78, 121, 0.4);
+        box-shadow: 0 5px 16px rgba(31, 78, 121, 0.4);
         transform: translateY(-1px);
     }
     .stDownloadButton>button {
         background: linear-gradient(135deg, #15803d 0%, #16a34a 100%);
         color: white;
         font-weight: 600;
-        border-radius: 10px;
-        padding: 0.6rem 1.5rem;
+        border-radius: 8px;
+        padding: 0.55rem 1.3rem;
         border: none;
-        box-shadow: 0 4px 12px rgba(22, 163, 74, 0.25);
+        box-shadow: 0 3px 10px rgba(22, 163, 74, 0.25);
     }
 
-    /* Tabs */
+    /* ============================================
+       TABS
+       ============================================ */
     .stTabs [data-baseweb="tab-list"] {
-        gap: 0.5rem;
+        gap: 0.4rem;
         background: transparent;
+        padding: 0;
+        border-bottom: 2px solid #e5e9f0;
     }
     .stTabs [data-baseweb="tab"] {
-        background: #f0f4f8;
-        border-radius: 8px 8px 0 0;
-        padding: 0.5rem 1.2rem;
+        background: transparent;
+        border-radius: 6px 6px 0 0;
+        padding: 0.5rem 1rem;
         font-weight: 500;
+        color: #6b7785;
     }
     .stTabs [aria-selected="true"] {
-        background: #1f4e79 !important;
-        color: white !important;
+        background: transparent !important;
+        color: #1f4e79 !important;
+        border-bottom: 2px solid #1f4e79;
+        margin-bottom: -2px;
     }
 
-    /* Risk badge en tabla */
-    .risk-badge {
-        display: inline-block;
-        padding: 0.2rem 0.7rem;
-        border-radius: 12px;
-        font-size: 0.8rem;
-        font-weight: 600;
+    /* ============================================
+       ALERTAS PERSONALIZADAS
+       ============================================ */
+    .info-card {
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        border-left: 4px solid #3b82f6;
+        border-radius: 8px;
+        padding: 0.8rem 1rem;
+        color: #1e40af;
+        font-size: 0.9rem;
+        margin: 0.5rem 0;
     }
-    .risk-badge.low { background: #dcfce7; color: #14532d; }
-    .risk-badge.high { background: #fee2e2; color: #7f1d1d; }
+    .success-card {
+        background: #f0fdf4;
+        border: 1px solid #bbf7d0;
+        border-left: 4px solid #16a34a;
+        border-radius: 8px;
+        padding: 0.8rem 1rem;
+        color: #14532d;
+        font-size: 0.9rem;
+        margin: 0.5rem 0;
+    }
 
-    /* Section titles */
-    .section-title {
-        font-size: 1.4rem;
-        font-weight: 700;
-        color: #1e3a5f;
-        margin: 1.5rem 0 1rem 0;
-        letter-spacing: -0.01em;
-    }
-    .section-subtitle {
-        color: #6b7785;
-        font-size: 0.95rem;
-        margin-bottom: 1rem;
-    }
-
-    /* Code blocks */
+    /* Code */
     code {
         background: #f0f4f8;
         padding: 0.1rem 0.4rem;
         border-radius: 4px;
-        font-size: 0.9em;
+        font-size: 0.88em;
         color: #1f4e79;
+    }
+
+    /* DataFrame tweaks */
+    .stDataFrame {
+        border-radius: 8px;
+        overflow: hidden;
     }
     </style>
     """,
@@ -249,7 +349,7 @@ preprocessor, model, feature_names, categorical_options = load_models()
 
 
 # ============================================================
-# FUNCIONES DE CARGA DE ARCHIVOS (MÚLTIPLES FORMATOS)
+# CARGA DE ARCHIVOS - ULTRA ROBUSTA
 # ============================================================
 COLUMNAS_UCI = [
     "checking_status", "duration", "credit_history", "purpose",
@@ -259,51 +359,161 @@ COLUMNAS_UCI = [
     "num_dependents", "own_telephone", "foreign_worker", "class",
 ]
 
+# Mapeo de códigos UCI (A11, A12...) a valores legibles
+MAPEO_CODIGOS_UCI = {
+    "checking_status": {"A11": "<0", "A12": "0<=X<200", "A13": ">=200", "A14": "no checking"},
+    "credit_history": {
+        "A30": "no credits/all paid", "A31": "all paid", "A32": "existing paid",
+        "A33": "delayed previously", "A34": "critical/other existing credit",
+    },
+    "purpose": {
+        "A40": "new car", "A41": "used car", "A42": "furniture/equipment",
+        "A43": "radio/tv", "A44": "domestic appliance", "A45": "repairs",
+        "A46": "education", "A47": "vacation", "A48": "retraining",
+        "A49": "business", "A410": "other",
+    },
+    "savings_status": {
+        "A61": "<100", "A62": "100<=X<500", "A63": "500<=X<1000",
+        "A64": ">=1000", "A65": "no known savings",
+    },
+    "employment": {
+        "A71": "unemployed", "A72": "<1", "A73": "1<=X<4",
+        "A74": "4<=X<7", "A75": ">=7",
+    },
+    "personal_status": {
+        "A91": "male div/sep", "A92": "female div/dep/mar",
+        "A93": "male single", "A94": "male mar/wid", "A95": "female single",
+    },
+    "other_parties": {"A101": "none", "A102": "co applicant", "A103": "guarantor"},
+    "property_magnitude": {
+        "A121": "real estate", "A122": "life insurance",
+        "A123": "car", "A124": "no known property",
+    },
+    "other_payment_plans": {"A141": "bank", "A142": "stores", "A143": "none"},
+    "housing": {"A151": "rent", "A152": "own", "A153": "for free"},
+    "job": {
+        "A171": "unemp/unskilled non res", "A172": "unskilled resident",
+        "A173": "skilled", "A174": "high qualif/self emp/mgmt",
+    },
+    "own_telephone": {"A191": "none", "A192": "yes"},
+    "foreign_worker": {"A201": "yes", "A202": "no"},
+}
 
-def _leer_csv_inteligente(contenido_bytes: bytes) -> pd.DataFrame:
-    """Lee un CSV probando diferentes separadores y encodings."""
-    encodings = ["utf-8", "latin-1", "cp1252"]
-    separadores = [",", ";", "\t", " "]
 
-    for enc in encodings:
+def decodificar_codigos_uci(df: pd.DataFrame) -> pd.DataFrame:
+    """Detecta y decodifica códigos UCI (A11, A12...) a valores legibles."""
+    df = df.copy()
+    hubo_cambios = False
+    for col, mapeo in MAPEO_CODIGOS_UCI.items():
+        if col in df.columns:
+            valores_unicos = set(df[col].astype(str).unique())
+            codigos_presentes = valores_unicos & set(mapeo.keys())
+            if codigos_presentes:
+                df[col] = df[col].astype(str).map(lambda x: mapeo.get(x, x))
+                hubo_cambios = True
+
+    if "class" in df.columns:
+        # 1=good, 2=bad en formato UCI
+        valores_class = set(df["class"].astype(str).unique())
+        if valores_class & {"1", "2"}:
+            df["class"] = df["class"].astype(str).map({"1": "good", "2": "bad"}).fillna(df["class"])
+    return df
+
+
+def decodificar_inteligente(contenido_bytes: bytes) -> str:
+    """Prueba varios encodings hasta encontrar uno que funcione."""
+    for enc in ["utf-8-sig", "utf-8", "latin-1", "cp1252", "iso-8859-1"]:
         try:
-            texto = contenido_bytes.decode(enc)
+            return contenido_bytes.decode(enc)
         except UnicodeDecodeError:
             continue
-
-        for sep in separadores:
-            try:
-                from io import StringIO
-                df = pd.read_csv(StringIO(texto), sep=sep)
-
-                if len(df.columns) >= 20:
-                    return df
-            except Exception:
-                continue
-
-    raise ValueError("No se pudo leer el archivo CSV con ningún encoding/separador conocido")
+    return contenido_bytes.decode("latin-1", errors="replace")
 
 
-def cargar_csv_inteligente(archivo) -> pd.DataFrame:
-    """
-    Carga un CSV en cualquier formato:
-    1. CSV con headers y nombres de columnas
-    2. CSV sin headers (formato UCI german.data, 21 columnas)
-    3. CSV con codificación latin-1 o BOM UTF-8
-    """
+def _looks_like_uci_codes(values: list) -> bool:
+    """Detecta si los nombres de columna parecen códigos UCI (A11, A12, A30, etc.)"""
+    if not values:
+        return False
+    sample = [str(v) for v in values[:5]]
+    n_codes = sum(1 for v in sample if v.startswith("A") and v[1:].isdigit())
+    return n_codes >= 2  # Si al menos 2 columnas parecen códigos UCI
+
+
+def _probar_con_header(texto: str, sep: str) -> pd.DataFrame | None:
+    """Intenta parsear ASUMIENDO que TIENE header."""
+    try:
+        df = pd.read_csv(
+            io.StringIO(texto),
+            sep=sep,
+            skipinitialspace=True,
+            skip_blank_lines=True,
+            comment="#",
+            header=0,
+            on_bad_lines="skip",
+        )
+        if 20 <= len(df.columns) <= 25:
+            # Si las columnas parecen códigos UCI (A11, A12, ...), no es header real
+            if _looks_like_uci_codes(list(df.columns)):
+                return None
+            return df
+    except Exception:
+        return None
+    return None
+
+
+def _probar_sin_header(texto: str, sep: str) -> pd.DataFrame | None:
+    """Intenta parsear asumiendo que NO tiene header."""
+    try:
+        df = pd.read_csv(
+            io.StringIO(texto),
+            sep=sep,
+            skipinitialspace=True,
+            skip_blank_lines=True,
+            comment="#",
+            header=None,
+            on_bad_lines="skip",
+        )
+        if df.shape[1] in (20, 21):
+            if df.shape[1] == 21:
+                df.columns = COLUMNAS_UCI
+            else:
+                df.columns = COLUMNAS_UCI[:-1]
+            return df
+    except Exception:
+        return None
+    return None
+
+
+def cargar_csv_robusto(archivo) -> pd.DataFrame:
+    """Carga CSV probando múltiples combinaciones de encoding/separador/header."""
     contenido_bytes = archivo.read()
     archivo.seek(0)
 
-    df = _leer_csv_inteligente(contenido_bytes)
+    texto = decodificar_inteligente(contenido_bytes)
 
-    if len(df.columns) == 21 and list(df.columns) == list(range(21)):
-        df.columns = COLUMNAS_UCI
-    elif len(df.columns) == 21 and all(isinstance(c, int) for c in df.columns):
-        df.columns = COLUMNAS_UCI
-    elif "class" not in df.columns and "checking_status" in df.columns:
-        pass
+    separadores = [",", ";", "\t", " ", "|", ":"]
 
-    return df
+    # Para separadores de espacio/tab, probar SIN header primero (formato UCI)
+    for sep in [" ", "\t", "|", ":"]:
+        df = _probar_sin_header(texto, sep)
+        if df is not None:
+            return decodificar_codigos_uci(df)
+
+    # Para coma/punto-y-coma, probar CON header primero (formato normal)
+    for sep in [",", ";", "\t", " ", "|", ":"]:
+        df = _probar_con_header(texto, sep)
+        if df is not None:
+            return decodificar_codigos_uci(df)
+
+    # Último intento: sin header con separadores normales
+    for sep in [",", ";", " ", "|", ":"]:
+        df = _probar_sin_header(texto, sep)
+        if df is not None:
+            return decodificar_codigos_uci(df)
+
+    raise ValueError(
+        "No se pudo leer el archivo. Verifica que sea un CSV/ARFF válido con las 20 columnas requeridas."
+    )
 
 
 def cargar_arff(archivo) -> pd.DataFrame:
@@ -321,15 +531,44 @@ def cargar_archivo(archivo) -> pd.DataFrame:
     nombre = archivo.name.lower()
     if nombre.endswith(".arff"):
         return cargar_arff(archivo)
-    return cargar_csv_inteligente(archivo)
+    return cargar_csv_robusto(archivo)
 
 
 def validar_columnas(df: pd.DataFrame) -> list:
     return [c for c in feature_names if c not in df.columns]
 
 
+def generar_csv_ejemplo() -> bytes:
+    """Genera un CSV de muestra en formato estándar (con headers) para que el usuario pruebe."""
+    muestra = pd.DataFrame({
+        "cliente_id": [f"CLI-{i:04d}" for i in range(1, 6)],
+        "nombre": ["Juan Pérez", "María López", "Carlos Ruiz", "Ana Torres", "Luis Vega"],
+        "checking_status": ["no checking", "<0", "0<=X<200", ">=200", "no checking"],
+        "duration": [24, 36, 12, 48, 18],
+        "credit_history": ["existing paid", "critical/other existing credit", "all paid", "existing paid", "delayed previously"],
+        "purpose": ["radio/tv", "new car", "furniture/equipment", "business", "education"],
+        "credit_amount": [2500, 5000, 1500, 8000, 3000],
+        "savings_status": ["<100", "<100", "100<=X<500", ">=1000", "<100"],
+        "employment": ["1<=X<4", ">=7", "<1", ">=7", "1<=X<4"],
+        "installment_commitment": [2, 3, 2, 4, 2],
+        "personal_status": ["male single", "male single", "female div/dep/mar", "male single", "male mar/wid"],
+        "other_parties": ["none", "none", "none", "co applicant", "none"],
+        "residence_since": [2, 4, 1, 3, 2],
+        "property_magnitude": ["car", "real estate", "life insurance", "real estate", "no known property"],
+        "age": [35, 45, 28, 52, 31],
+        "other_payment_plans": ["none", "bank", "none", "none", "stores"],
+        "housing": ["own", "own", "rent", "own", "for free"],
+        "existing_credits": [1, 2, 1, 3, 1],
+        "job": ["skilled", "high qualif/self emp/mgmt", "unskilled resident", "skilled", "unskilled resident"],
+        "num_dependents": [1, 1, 1, 2, 1],
+        "own_telephone": ["yes", "none", "yes", "yes", "none"],
+        "foreign_worker": ["yes", "yes", "yes", "no", "yes"],
+    })
+    return muestra.to_csv(index=False).encode("utf-8")
+
+
 # ============================================================
-# FUNCIONES DE PREDICCIÓN
+# PREDICCIÓN
 # ============================================================
 def predecir_lote(df: pd.DataFrame) -> pd.DataFrame:
     X = df[feature_names].copy()
@@ -368,38 +607,58 @@ with st.sidebar:
     st.markdown("### 🏦 Credit Scoring")
     st.caption("UPAO · Aprendizaje Estadístico")
     st.markdown("---")
-    st.markdown("#### 📊 Rendimiento del modelo")
-    c1, c2 = st.columns(2)
-    c1.metric("Accuracy", "84.05%", help="Porcentaje de predicciones correctas")
-    c2.metric("AUC-ROC", "0.927", help="Área bajo la curva ROC")
-    c1.metric("Gini", "0.854", help="2 × AUC − 1")
-    c2.metric("Test set", "420", help="Instancias en test (post-SMOTE)")
-    st.markdown("---")
-    st.markdown("#### 🧠 Pipeline")
+
+    st.markdown('<p class="sb-section-title">📊 Modelo</p>', unsafe_allow_html=True)
+    st.markdown(
+        '<div class="sb-metric"><div class="lbl">Accuracy</div><div class="val">84.05%</div></div>',
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        '<div class="sb-metric"><div class="lbl">AUC-ROC</div><div class="val">0.927</div></div>',
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        '<div class="sb-metric"><div class="lbl">Gini</div><div class="val">0.854</div></div>',
+        unsafe_allow_html=True,
+    )
+    st.markdown(
+        '<div class="sb-metric"><div class="lbl">Test set</div><div class="val">420 clientes</div></div>',
+        unsafe_allow_html=True,
+    )
+
+    st.markdown('<p class="sb-section-title">🧠 Pipeline</p>', unsafe_allow_html=True)
     st.markdown(
         """
-        - **Normalización:** MinMaxScaler
-        - **Encoding:** OrdinalEncoder
-        - **Balanceo:** SMOTE (50/50)
-        - **Modelo:** Random Forest (100 árboles)
-        """
+        <div style="font-size: 0.82rem; color: #4a5568; line-height: 1.7;">
+        • MinMaxScaler (numéricas)<br>
+        • OrdinalEncoder (categóricas)<br>
+        • SMOTE (50/50)<br>
+        • Random Forest (100 árboles)
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
+
     st.markdown("---")
-    st.caption("v1.0 · Replicado desde WEKA")
+    st.markdown(
+        '<div style="font-size: 0.72rem; color: #9ca3af; text-align: center;">v1.0 · WEKA replication</div>',
+        unsafe_allow_html=True,
+    )
 
 
 # ============================================================
-# HERO / HEADER
+# HERO
 # ============================================================
 st.markdown(
     """
     <div class="hero">
         <h1>🏦 Credit Scoring</h1>
-        <p>Evalúa el riesgo crediticio de tus clientes con un modelo de Machine Learning entrenado con el dataset German Credit Data.</p>
+        <p>Evalúa el riesgo crediticio de tus clientes con un modelo de Machine Learning entrenado con el German Credit Data.</p>
         <div class="hero-badges">
             <span class="hero-badge">⚡ Predicción por lotes</span>
             <span class="hero-badge">📂 CSV / ARFF</span>
             <span class="hero-badge">📥 Descarga de resultados</span>
+            <span class="hero-badge">🔍 Múltiples formatos</span>
         </div>
     </div>
     """,
@@ -408,71 +667,92 @@ st.markdown(
 
 
 # ============================================================
-# UPLOAD DE ARCHIVO
+# ZONA DE CARGA
 # ============================================================
 st.markdown('<p class="section-title">📂 Cargar archivo de clientes</p>', unsafe_allow_html=True)
 st.markdown(
-    '<p class="section-subtitle">Sube un archivo <code>CSV</code> o <code>ARFF</code> con los datos de los clientes. '
-    "Se aceptan archivos con o sin encabezados, en formato estándar o UCI (german.data).</p>",
+    '<p class="section-subtitle">Sube un archivo con los datos de tus clientes. '
+    "Acepta CSV con o sin encabezados, formato UCI, ARFF, y múltiples encodings.</p>",
     unsafe_allow_html=True,
 )
 
-archivo_subido = st.file_uploader(
-    "Arrastra o selecciona tu archivo",
-    type=["csv", "arff", "txt", "data"],
-    help="Formatos soportados: CSV (con o sin headers), ARFF, texto plano.",
-    label_visibility="collapsed",
-)
+col_upload, col_sample = st.columns([3, 1])
+with col_upload:
+    archivo_subido = st.file_uploader(
+        "Arrastra o selecciona tu archivo",
+        type=["csv", "arff", "txt", "data"],
+        help="Formatos soportados: CSV (con o sin headers), ARFF, texto plano, formato UCI.",
+        label_visibility="collapsed",
+    )
+with col_sample:
+    st.markdown('<p style="font-size: 0.85rem; color: #6b7785; margin-top: 0.4rem;">¿No tienes archivo?</p>', unsafe_allow_html=True)
+    st.download_button(
+        "📋 Descargar muestra",
+        data=generar_csv_ejemplo(),
+        file_name="muestra_clientes.csv",
+        mime="text/csv",
+        use_container_width=True,
+    )
 
+# Procesar archivo
 if archivo_subido is not None:
     try:
-        with st.spinner("Leyendo archivo..."):
+        with st.spinner("📖 Leyendo archivo..."):
             df_input = cargar_archivo(archivo_subido)
     except Exception as e:
-        st.error(f"❌ No se pudo leer el archivo: {e}")
-        st.info(
-            "💡 **Tip:** Si tu archivo no tiene headers, asegúrate de que tenga **21 columnas** "
-            "(20 features + 1 de clase) en el orden del dataset UCI German Credit."
+        st.markdown(
+            f'<div class="info-card">❌ <b>No se pudo leer el archivo.</b><br>'
+            f"Detalle: {e}<br><br>"
+            f"💡 <b>Tip:</b> Si tu archivo viene de la descarga UCI (german.data), "
+            f"debe tener 21 columnas (20 features + 1 clase) sin encabezado, separadas por espacios. "
+            f"Puedes descargar la muestra de arriba para ver el formato correcto.</div>",
+            unsafe_allow_html=True,
         )
         st.stop()
 
     if "class" in df_input.columns:
-        st.info("ℹ️ Se detectó la columna `class` en el archivo. Será ignorada para la predicción.")
+        st.markdown(
+            '<div class="info-card">ℹ️ Se detectó la columna <code>class</code> en el archivo. '
+            "Será ignorada para la predicción.</div>",
+            unsafe_allow_html=True,
+        )
         df_input = df_input.drop(columns=["class"])
 
     faltantes = validar_columnas(df_input)
     if faltantes:
-        st.error(
-            f"❌ Faltan **{len(faltantes)} columnas** requeridas por el modelo:\n\n"
-            + ", ".join(f"`{c}`" for c in faltantes)
+        st.markdown(
+            f'<div class="info-card" style="border-color: #fecaca; background: #fef2f2; color: #7f1d1d;">'
+            f"❌ <b>Faltan {len(faltantes)} columnas</b> requeridas por el modelo:<br><br>"
+            + ", ".join(f"<code>{c}</code>" for c in faltantes)
+            + "</div>",
+            unsafe_allow_html=True,
         )
-        st.info(
-            "**Columnas esperadas (20):**\n\n"
-            + ", ".join(f"`{c}`" for c in feature_names)
-        )
+        with st.expander("Ver las 20 columnas esperadas"):
+            st.write(", ".join(f"`{c}`" for c in feature_names))
     else:
-        # Estado: archivo válido
-        st.success(f"✅ Archivo cargado correctamente · **{len(df_input)} clientes** detectados")
+        st.markdown(
+            f'<div class="success-card">✅ <b>Archivo cargado correctamente</b> · '
+            f"{len(df_input)} clientes detectados</div>",
+            unsafe_allow_html=True,
+        )
 
-        with st.expander("👀 Vista previa de los datos", expanded=False):
+        with st.expander(f"👀 Vista previa (primeras 10 filas de {len(df_input)})", expanded=False):
             st.dataframe(df_input.head(10), use_container_width=True, hide_index=True)
 
-        # ========================================================
-        # BOTÓN DE PREDICCIÓN
-        # ========================================================
-        if st.button("🚀 Analizar Riesgo Crediticio", type="primary", use_container_width=True):
-            with st.spinner("Procesando predicciones..."):
-                try:
-                    df_resultados = predecir_lote(df_input)
-                except Exception as e:
-                    st.error(f"❌ Error al predecir: {e}")
-                    st.stop()
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            if st.button("🚀 Analizar Riesgo Crediticio", type="primary", use_container_width=True):
+                with st.spinner("🧠 Procesando predicciones..."):
+                    try:
+                        df_resultados = predecir_lote(df_input)
+                        st.session_state["resultados"] = df_resultados
+                    except Exception as e:
+                        st.error(f"❌ Error al predecir: {e}")
+                        st.stop()
 
-            # Guardar en session state para mantener resultados
-            st.session_state["resultados"] = df_resultados
 
 # ============================================================
-# RESULTADOS (si ya se predijo)
+# RESULTADOS
 # ============================================================
 if "resultados" in st.session_state:
     df_resultados = st.session_state["resultados"]
@@ -487,83 +767,70 @@ if "resultados" in st.session_state:
     pct_mor = n_mor / n_total * 100
     riesgo_promedio = df_resultados["Prob. Moroso (%)"].mean()
 
-    # ====================================================
-    # TARJETAS DE RESUMEN
-    # ====================================================
+    # Stat cards
     c1, c2, c3, c4 = st.columns(4)
     with c1:
         st.markdown(
-            f'<div class="stat-card"><div class="label">Total Clientes</div>'
+            f'<div class="stat-card info"><div class="label">Total Clientes</div>'
             f'<div class="value">{n_total}</div></div>',
             unsafe_allow_html=True,
         )
     with c2:
         st.markdown(
             f'<div class="stat-card success"><div class="label">Solventes</div>'
-            f'<div class="value">{n_solv} <span style="font-size:1rem;color:#6b7785;">({pct_solv:.1f}%)</span></div></div>',
+            f'<div class="value">{n_solv}</div>'
+            f'<div class="delta">{pct_solv:.1f}% del total</div></div>',
             unsafe_allow_html=True,
         )
     with c3:
         st.markdown(
             f'<div class="stat-card danger"><div class="label">Morosos</div>'
-            f'<div class="value">{n_mor} <span style="font-size:1rem;color:#6b7785;">({pct_mor:.1f}%)</span></div></div>',
+            f'<div class="value">{n_mor}</div>'
+            f'<div class="delta">{pct_mor:.1f}% del total</div></div>',
             unsafe_allow_html=True,
         )
     with c4:
         color_class = "success" if riesgo_promedio < 40 else ("warning" if riesgo_promedio < 60 else "danger")
         st.markdown(
             f'<div class="stat-card {color_class}"><div class="label">Riesgo Promedio</div>'
-            f'<div class="value">{riesgo_promedio:.1f}%</div></div>',
+            f'<div class="value">{riesgo_promedio:.1f}%</div>'
+            f'<div class="delta">de morosidad</div></div>',
             unsafe_allow_html=True,
         )
 
     st.markdown("")
-
-    # ====================================================
-    # TABLA DE RESULTADOS
-    # ====================================================
     st.markdown('<p class="section-title">📋 Detalle por cliente</p>', unsafe_allow_html=True)
 
     styled = df_resultados.style.map(colorear_prediccion, subset=["Predicción"])
     st.dataframe(styled, use_container_width=True, height=420, hide_index=True)
 
-    # ====================================================
-    # DESCARGA
-    # ====================================================
-    csv_bytes = df_resultados.to_csv(index=False).encode("utf-8")
-    st.download_button(
-        label="📥 Descargar resultados (CSV)",
-        data=csv_bytes,
-        file_name=f"resultados_credit_scoring_{pd.Timestamp.now().strftime('%Y%m%d_%H%M')}.csv",
-        mime="text/csv",
-        use_container_width=True,
-    )
+    st.markdown("")
+    c1, c2, c3 = st.columns([1, 2, 1])
+    with c2:
+        st.download_button(
+            label="📥 Descargar resultados como CSV",
+            data=df_resultados.to_csv(index=False).encode("utf-8"),
+            file_name=f"resultados_credit_scoring_{pd.Timestamp.now().strftime('%Y%m%d_%H%M')}.csv",
+            mime="text/csv",
+            use_container_width=True,
+        )
 
-    # ====================================================
-    # DISTRIBUCIÓN DE RIESGO
-    # ====================================================
+    # Distribución
     st.markdown("---")
     st.markdown('<p class="section-title">📈 Distribución de riesgo</p>', unsafe_allow_html=True)
-    c1, c2 = st.columns([1, 1])
-
+    c1, c2 = st.columns(2)
     with c1:
         st.markdown("**Clientes por nivel de riesgo**")
         distribucion = df_resultados["Nivel de Riesgo"].value_counts().reindex(
             ["Bajo", "Moderado", "Alto", "Muy Alto"], fill_value=0
         )
-        st.bar_chart(distribucion, color=["#15803d"])
-
+        st.bar_chart(distribucion, color=["#15803d"], height=300)
     with c2:
-        st.markdown("**Probabilidad de morosidad (histograma)**")
-        hist_data = pd.DataFrame(
-            {
-                "Prob. Moroso (%)": df_resultados["Prob. Moroso (%)"],
-            }
-        )
-        st.bar_chart(
-            hist_data["Prob. Moroso (%)"].value_counts(bins=10).sort_index(),
-            color=["#1f4e79"],
-        )
+        st.markdown("**Probabilidad de morosidad (distribución)**")
+        proba = df_resultados["Prob. Moroso (%)"]
+        hist = pd.cut(proba, bins=[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]).value_counts().sort_index()
+        hist.index = hist.index.astype(str)
+        st.bar_chart(hist, color=["#1f4e79"], height=300)
 
 
 # ============================================================
@@ -574,7 +841,7 @@ st.markdown("---")
 tab1, tab2, tab3 = st.tabs(["📊 Sobre el Modelo", "📋 Variables", "ℹ️ Acerca de"])
 
 with tab1:
-    st.markdown("#### Métricas del modelo Random Forest")
+    st.markdown("#### Métricas del modelo")
     c1, c2, c3, c4 = st.columns(4)
     c1.metric("Accuracy", "84.05%")
     c2.metric("AUC-ROC", "0.927")
@@ -582,31 +849,18 @@ with tab1:
     c4.metric("Test set", "420")
     st.caption("Métricas obtenidas sobre el test set de 420 instancias balanceadas con SMOTE.")
 
-    st.markdown("#### Matriz de confusión (test set)")
-    cm = pd.DataFrame(
-        {
-            "": ["Real: Solvente", "Real: Moroso"],
-            "Pred: Solvente": [177, 41],
-            "Pred: Moroso": [26, 176],
-        }
-    ).set_index("")
-    st.dataframe(cm, use_container_width=True)
-
+    st.markdown("")
+    st.markdown("#### Pipeline de preprocesamiento")
     st.markdown(
         """
-        #### Preprocesamiento
-
-        El pipeline replica el flujo aplicado en WEKA:
-
-        | Paso | Descripción |
-        |---|---|
-        | 1. Carga | Dataset German Credit (1000 instancias) |
-        | 2. Limpieza | Sin valores faltantes |
-        | 3. Encoding | OrdinalEncoder en 13 categóricas |
-        | 4. Normalización | MinMaxScaler en 7 numéricas |
-        | 5. Balanceo | SMOTE (300 bad → 700 bad sintéticas) |
-        | 6. Split | 70% training (980) / 30% test (420) estratificado |
-        | 7. Modelo | Random Forest (100 árboles, `class_weight=balanced`) |
+        | # | Paso | Descripción |
+        |---|---|---|
+        | 1 | **Carga** | Dataset German Credit (1000 instancias) |
+        | 2 | **Encoding** | OrdinalEncoder en 13 variables categóricas |
+        | 3 | **Normalización** | MinMaxScaler en 7 variables numéricas |
+        | 4 | **Balanceo** | SMOTE (300 bad → 700 bad sintéticas) |
+        | 5 | **Split** | 70% training (980) / 30% test (420) estratificado |
+        | 6 | **Modelo** | Random Forest (100 árboles, `class_weight=balanced`) |
         """
     )
 
@@ -653,42 +907,30 @@ with tab3:
         """
         #### 🎓 Acerca del proyecto
 
-        **Curso:** Aprendizaje Estadístico
-        **Universidad:** UPAO (Universidad Privada Antenor Orrego)
-        **Modelo de referencia:** Random Forest entrenado en WEKA sobre German Credit Data
+        - **Curso:** Aprendizaje Estadístico
+        - **Universidad:** UPAO
+        - **Modelo de referencia:** Random Forest entrenado en WEKA
 
         #### 📊 Sobre el dataset
 
         El **German Credit Data** es un dataset clásico de clasificación binaria
-        para evaluación de credit scoring. Contiene 1000 solicitudes de crédito
-        en Alemania con 20 atributos predictivos y 1 variable objetivo:
-
-        - **good** (700 instancias, 70%): cliente solvente
-        - **bad** (300 instancias, 30%): cliente moroso
-
-        Los datos incluyen información demográfica, financiera y de historial
-        crediticio del solicitante.
+        para credit scoring. Contiene 1000 solicitudes de crédito en Alemania con
+        20 atributos predictivos y 1 variable objetivo.
 
         #### 🔄 Notas metodológicas
 
-        1. **SMOTE antes del split:** se replica el flujo de WEKA para
-           comparabilidad de métricas. Académicamente lo correcto sería
-           aplicar SMOTE solo en training.
+        1. **SMOTE antes del split:** se replica el flujo de WEKA. Lo académicamente
+           correcto sería aplicar SMOTE solo en training.
+        2. **Doble balanceo:** SMOTE + `class_weight='balanced'`. Refuerza la
+           atención a la clase minoritaria.
+        3. **Test set no representativo del mundo real:** tras SMOTE, el test
+           queda 50/50. Las métricas son optimistas vs producción.
+        4. **Validación contra WEKA:** variaciones de ±2-3% entre Python y WEKA
+           son normales.
 
-        2. **Doble balanceo:** SMOTE + `class_weight='balanced'`. Refuerza
-           la atención a la clase minoritaria.
-
-        3. **Test set no representativo del mundo real:** tras SMOTE, el
-           test queda 50/50. En producción los datos serían 70/30.
-
-        4. **Validación contra WEKA:** las métricas de Python se comparan
-           con las de WEKA (~81.19% accuracy). Variaciones de ±2-3% son
-           normales por diferencias de implementación.
-
-        #### 🔗 Fuente del dataset
+        #### 🔗 Fuentes
 
         - WEKA: [credit-g.arff](https://raw.githubusercontent.com/Waikato/weka-3.8/master/wekadocs/data/credit-g.arff)
-        - UCI ML Repository: [Statlog (German Credit Data)](https://archive.ics.uci.edu/ml/datasets/statlog+(german+credit+data))
-        - Documentación: Hofmann, H. (1994)
+        - UCI: [Statlog German Credit](https://archive.ics.uci.edu/ml/datasets/statlog+(german+credit+data))
         """
     )
