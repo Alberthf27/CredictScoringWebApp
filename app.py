@@ -48,17 +48,46 @@ st.markdown(
     .block-container {
         padding-top: 2rem;
         padding-bottom: 3rem;
-        max-width: 1100px;
+        max-width: 1080px;
+    }
+    [data-testid="stAppViewContainer"] > .main {
+        max-width: 1080px;
+        margin: 0 auto;
     }
 
-    /* Sidebar: ancho controlado */
+    /* Sidebar: ancho controlado y contenido protegido */
     section[data-testid="stSidebar"] {
         width: 280px !important;
         min-width: 280px !important;
+        max-width: 280px !important;
+    }
+    section[data-testid="stSidebar"] > div {
+        width: 280px !important;
+        padding: 0 !important;
     }
     section[data-testid="stSidebar"] .block-container {
         max-width: 100%;
-        padding: 1.5rem 1rem;
+        padding: 1.2rem 0.9rem;
+        margin: 0;
+    }
+    section[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] {
+        max-width: 100%;
+        overflow: hidden;
+    }
+
+    /* ============================================
+       ANIMACIONES SUAVES
+       ============================================ */
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    .stat-card, .hero, .info-card, .success-card {
+        animation: fadeInUp 0.4s ease-out;
     }
 
     /* ============================================
@@ -83,6 +112,7 @@ st.markdown(
         height: 350px;
         background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
         border-radius: 50%;
+        pointer-events: none;
     }
     .hero h1 {
         color: white;
@@ -152,6 +182,7 @@ st.markdown(
     }
     .stat-card:hover {
         box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+        transform: translateY(-2px);
     }
     .stat-card .label {
         color: #6b7785;
@@ -174,41 +205,71 @@ st.markdown(
         font-weight: 500;
         margin-top: 0.2rem;
     }
+    .stat-card.success { border-left: 4px solid #16a34a; }
     .stat-card.success .value { color: #15803d; }
+    .stat-card.danger { border-left: 4px solid #dc2626; }
     .stat-card.danger .value { color: #b91c1c; }
+    .stat-card.warning { border-left: 4px solid #f59e0b; }
     .stat-card.warning .value { color: #b45309; }
+    .stat-card.info { border-left: 4px solid #3b82f6; }
     .stat-card.info .value { color: #1e40af; }
 
     /* ============================================
-       SIDEBAR METRICS (más compactos)
+       SIDEBAR METRICS (compactos y protegidos)
        ============================================ */
     .sb-metric {
         background: #f8fafc;
-        padding: 0.6rem 0.8rem;
-        border-radius: 8px;
+        padding: 0.55rem 0.75rem;
+        border-radius: 6px;
         border-left: 3px solid #1f4e79;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.45rem;
+        overflow: hidden;
     }
     .sb-metric .lbl {
         color: #6b7785;
-        font-size: 0.7rem;
+        font-size: 0.65rem;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.04em;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
     .sb-metric .val {
         color: #1e3a5f;
-        font-size: 1.05rem;
+        font-size: 0.95rem;
         font-weight: 700;
         margin-top: 0.1rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
     .sb-section-title {
         color: #1e3a5f;
-        font-size: 0.78rem;
+        font-size: 0.72rem;
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.06em;
-        margin: 1rem 0 0.5rem 0;
+        margin: 0.8rem 0 0.4rem 0;
+        padding-bottom: 0.3rem;
+        border-bottom: 1px solid #e5e9f0;
+    }
+    .sb-brand {
+        text-align: center;
+        padding: 0.5rem 0;
+        margin-bottom: 0.3rem;
+    }
+    .sb-brand-title {
+        color: #1e3a5f;
+        font-size: 1.05rem;
+        font-weight: 800;
+        margin: 0;
+        letter-spacing: -0.01em;
+    }
+    .sb-brand-sub {
+        color: #9ca3af;
+        font-size: 0.7rem;
+        margin: 0.1rem 0 0 0;
     }
 
     /* ============================================
@@ -219,6 +280,11 @@ st.markdown(
         border: 2px dashed #1f4e79;
         border-radius: 12px;
         padding: 1.5rem;
+        transition: all 0.2s ease;
+    }
+    [data-testid="stFileUploaderDropzone"]:hover {
+        background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+        border-color: #1e40af;
     }
     [data-testid="stFileUploaderDropzone"] section {
         color: #1f4e79;
@@ -249,6 +315,11 @@ st.markdown(
         padding: 0.55rem 1.3rem;
         border: none;
         box-shadow: 0 3px 10px rgba(22, 163, 74, 0.25);
+        transition: all 0.2s ease;
+    }
+    .stDownloadButton>button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 5px 16px rgba(22, 163, 74, 0.4);
     }
 
     /* ============================================
@@ -275,7 +346,7 @@ st.markdown(
     }
 
     /* ============================================
-       ALERTAS PERSONALIZADAS
+       ALERTAS Y CARDS
        ============================================ */
     .info-card {
         background: #eff6ff;
@@ -297,6 +368,36 @@ st.markdown(
         font-size: 0.9rem;
         margin: 0.5rem 0;
     }
+    .error-card {
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        border-left: 4px solid #dc2626;
+        border-radius: 8px;
+        padding: 0.8rem 1rem;
+        color: #7f1d1d;
+        font-size: 0.9rem;
+        margin: 0.5rem 0;
+    }
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: #6b7785;
+    }
+    .empty-state .icon {
+        font-size: 3.5rem;
+        margin-bottom: 0.5rem;
+        opacity: 0.5;
+    }
+    .empty-state .title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #1e3a5f;
+        margin: 0.3rem 0;
+    }
+    .empty-state .subtitle {
+        font-size: 0.9rem;
+        margin: 0;
+    }
 
     /* Code */
     code {
@@ -311,6 +412,28 @@ st.markdown(
     .stDataFrame {
         border-radius: 8px;
         overflow: hidden;
+    }
+
+    /* ============================================
+       RESPONSIVE
+       ============================================ */
+    @media (max-width: 768px) {
+        .hero { padding: 1.5rem 1.2rem; }
+        .hero h1 { font-size: 1.5rem; }
+        .stat-card .value { font-size: 1.3rem; }
+        .block-container { padding-left: 1rem; padding-right: 1rem; }
+    }
+
+    /* Scrollbar en sidebar */
+    section[data-testid="stSidebar"] [data-testid="stSidebarContent"] {
+        scrollbar-width: thin;
+    }
+    section[data-testid="stSidebar"] [data-testid="stSidebarContent"]::-webkit-scrollbar {
+        width: 4px;
+    }
+    section[data-testid="stSidebar"] [data-testid="stSidebarContent"]::-webkit-scrollbar-thumb {
+        background: #cbd5e0;
+        border-radius: 2px;
     }
     </style>
     """,
@@ -604,8 +727,13 @@ def colorear_prediccion(val):
 # SIDEBAR
 # ============================================================
 with st.sidebar:
-    st.markdown("### 🏦 Credit Scoring")
-    st.caption("UPAO · Aprendizaje Estadístico")
+    st.markdown(
+        '<div class="sb-brand">'
+        '<p class="sb-brand-title">🏦 Credit Scoring</p>'
+        '<p class="sb-brand-sub">UPAO · Aprendizaje Estadístico</p>'
+        "</div>",
+        unsafe_allow_html=True,
+    )
     st.markdown("---")
 
     st.markdown('<p class="sb-section-title">📊 Modelo</p>', unsafe_allow_html=True)
@@ -629,10 +757,10 @@ with st.sidebar:
     st.markdown('<p class="sb-section-title">🧠 Pipeline</p>', unsafe_allow_html=True)
     st.markdown(
         """
-        <div style="font-size: 0.82rem; color: #4a5568; line-height: 1.7;">
+        <div style="font-size: 0.78rem; color: #4a5568; line-height: 1.8; padding-left: 0.2rem;">
         • MinMaxScaler (numéricas)<br>
         • OrdinalEncoder (categóricas)<br>
-        • SMOTE (50/50)<br>
+        • SMOTE (50/50 balanceo)<br>
         • Random Forest (100 árboles)
         </div>
         """,
@@ -641,7 +769,7 @@ with st.sidebar:
 
     st.markdown("---")
     st.markdown(
-        '<div style="font-size: 0.72rem; color: #9ca3af; text-align: center;">v1.0 · WEKA replication</div>',
+        '<div style="font-size: 0.7rem; color: #9ca3af; text-align: center; padding: 0.3rem 0;">v1.0 · WEKA replication</div>',
         unsafe_allow_html=True,
     )
 
@@ -685,13 +813,26 @@ with col_upload:
         label_visibility="collapsed",
     )
 with col_sample:
-    st.markdown('<p style="font-size: 0.85rem; color: #6b7785; margin-top: 0.4rem;">¿No tienes archivo?</p>', unsafe_allow_html=True)
+    st.markdown('<p style="font-size: 0.8rem; color: #6b7785; margin: 0.5rem 0 0.4rem 0; text-align: center;">¿No tienes archivo?</p>', unsafe_allow_html=True)
     st.download_button(
         "📋 Descargar muestra",
         data=generar_csv_ejemplo(),
         file_name="muestra_clientes.csv",
         mime="text/csv",
         use_container_width=True,
+    )
+
+# Empty state cuando no hay archivo
+if archivo_subido is None and "resultados" not in st.session_state:
+    st.markdown(
+        """
+        <div class="empty-state">
+            <div class="icon">📊</div>
+            <p class="title">Esperando tu archivo</p>
+            <p class="subtitle">Sube un CSV/ARFF o descarga la muestra para probar</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
 
 # Procesar archivo
@@ -701,11 +842,16 @@ if archivo_subido is not None:
             df_input = cargar_archivo(archivo_subido)
     except Exception as e:
         st.markdown(
-            f'<div class="info-card">❌ <b>No se pudo leer el archivo.</b><br>'
-            f"Detalle: {e}<br><br>"
-            f"💡 <b>Tip:</b> Si tu archivo viene de la descarga UCI (german.data), "
-            f"debe tener 21 columnas (20 features + 1 clase) sin encabezado, separadas por espacios. "
-            f"Puedes descargar la muestra de arriba para ver el formato correcto.</div>",
+            f'<div class="error-card">'
+            f"❌ <b>No se pudo leer el archivo</b><br><br>"
+            f"<b>Detalle:</b> {e}<br><br>"
+            f"💡 <b>Formatos soportados:</b><br>"
+            f"• CSV con headers descriptivos (checking_status, duration, etc.)<br>"
+            f"• CSV sin headers en formato UCI (21 columnas, códigos A11, A12, ...)<br>"
+            f"• ARFF estándar de WEKA<br>"
+            f"• Texto separado por coma, punto-y-coma, tab o espacio<br><br>"
+            f"📋 Descarga la muestra CSV de arriba para ver el formato esperado."
+            f"</div>",
             unsafe_allow_html=True,
         )
         st.stop()
