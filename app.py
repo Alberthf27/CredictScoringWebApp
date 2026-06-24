@@ -425,38 +425,78 @@ preprocessor, model, feature_names, categorical_options, feature_defaults = load
 # ============================================================
 # MAPEO DE NOMBRES DE COLUMNAS (FLEXIBLE)
 # ============================================================
-# Mapeo: nombre en el archivo del usuario -> nombre interno del modelo
+# Mapeo: nombre normalizado en el archivo del usuario -> nombre interno del modelo
+# Incluye los 20 nombres internos + variaciones en espanol/ingles
 MAPEO_NOMBRES = {
-    # Age
-    "age": "age", "edad": "age", "años": "age", "anos": "age", "year": "age", "years": "age",
-    # Sex / personal_status
-    "sex": "personal_status", "sexo": "personal_status", "genero": "personal_status",
-    "gender": "personal_status", "personal_status": "personal_status",
-    "personal status": "personal_status", "estado_civil": "personal_status",
-    # Job
-    "job": "job", "trabajo": "job", "empleo": "job", "ocupacion": "job", "occupation": "job",
-    # Housing
-    "housing": "housing", "vivienda": "housing", "casa": "housing", "house": "housing",
-    # Saving accounts
-    "saving accounts": "savings_status", "savings": "savings_status",
-    "saving_accounts": "savings_status", "savings_status": "savings_status",
-    "ahorros": "savings_status", "cuenta de ahorros": "savings_status",
-    "cuenta_de_ahorros": "savings_status", "ahorro": "savings_status",
-    # Checking account
-    "checking account": "checking_status", "checking": "checking_status",
-    "checking_account": "checking_status", "checking_status": "checking_status",
+    # ==== 20 nombres internos (match exacto) ====
+    "checking status": "checking_status",
+    "duration": "duration",
+    "credit history": "credit_history",
+    "purpose": "purpose",
+    "credit amount": "credit_amount",
+    "savings status": "savings_status",
+    "employment": "employment",
+    "installment commitment": "installment_commitment",
+    "installment rate": "installment_commitment",
+    "personal status": "personal_status",
+    "other parties": "other_parties",
+    "residence since": "residence_since",
+    "property magnitude": "property_magnitude",
+    "age": "age",
+    "other payment plans": "other_payment_plans",
+    "housing": "housing",
+    "existing credits": "existing_credits",
+    "job": "job",
+    "num dependents": "num_dependents",
+    "number of dependents": "num_dependents",
+    "own telephone": "own_telephone",
+    "foreign worker": "foreign_worker",
+    # ==== Variaciones en espanol ====
+    "edad": "age", "anos": "age", "ano": "age",
+    "sexo": "personal_status", "genero": "personal_status", "estado civil": "personal_status",
+    "trabajo": "job", "empleo": "job", "ocupacion": "job",
+    "vivienda": "housing", "casa": "housing",
+    "ahorros": "savings_status", "ahorro": "savings_status",
+    "cuenta de ahorros": "savings_status", "cuenta ahorros": "savings_status",
     "cuenta corriente": "checking_status", "corriente": "checking_status",
-    "cuenta_corriente": "checking_status",
-    # Credit amount
-    "credit amount": "credit_amount", "credit_amount": "credit_amount", "amount": "credit_amount",
-    "monto": "credit_amount", "monto del credito": "credit_amount", "monto_del_credito": "credit_amount",
-    "monto de credito": "credit_amount", "credito": "credit_amount", "credit": "credit_amount",
-    "credit_amount": "credit_amount",
-    # Duration
-    "duration": "duration", "duracion": "duration", "plazo": "duration", "meses": "duration", "months": "duration",
-    # Purpose
-    "purpose": "purpose", "proposito": "purpose", "motivo": "purpose", "objetivo": "purpose",
-    "reason": "purpose",
+    "monto": "credit_amount", "monto del credito": "credit_amount",
+    "monto de credito": "credit_amount", "importe": "credit_amount",
+    "duracion": "duration", "plazo": "duration", "meses": "duration",
+    "proposito": "purpose", "motivo": "purpose", "objetivo": "purpose",
+    "historial crediticio": "credit_history", "historial de credito": "credit_history",
+    "historial": "credit_history",
+    "empleo actual": "employment", "antiguedad laboral": "employment", "trabajo actual": "employment",
+    "tasa de cuota": "installment_commitment", "cuota": "installment_commitment",
+    "garantes": "other_parties", "codeudores": "other_parties", "garante": "other_parties",
+    "residencia": "residence_since", "anos en residencia": "residence_since",
+    "propiedad": "property_magnitude", "tipo de propiedad": "property_magnitude",
+    "planes de pago": "other_payment_plans", "otros planes": "other_payment_plans",
+    "creditos existentes": "existing_credits", "creditos actuales": "existing_credits",
+    "dependientes": "num_dependents", "personas a cargo": "num_dependents",
+    "telefono": "own_telephone", "telefono propio": "own_telephone",
+    "trabajador extranjero": "foreign_worker", "extranjero": "foreign_worker",
+    # ==== Variaciones en ingles ====
+    "sex": "personal_status", "gender": "personal_status",
+    "saving accounts": "savings_status", "savings": "savings_status",
+    "saving account": "savings_status", "saving": "savings_status",
+    "checking account": "checking_status", "checking": "checking_status",
+    "checking acount": "checking_status",  # typo comun
+    "credit": "credit_amount",
+    "amount": "credit_amount", "loan amount": "credit_amount",
+    "house": "housing", "home": "housing",
+    "occupation": "job", "work": "job",
+    "year": "age", "years": "age",
+    "reason": "purpose", "goal": "purpose",
+    "months": "duration", "term": "duration",
+    "dependents": "num_dependents", "number dependents": "num_dependents",
+    "telephone": "own_telephone", "phone": "own_telephone",
+    "foreign": "foreign_worker",
+    "credits": "existing_credits",
+    "payment plans": "other_payment_plans",
+    "parties": "other_parties",
+    "residence": "residence_since",
+    "rate": "installment_commitment",
+    "magnitude": "property_magnitude",
 }
 
 # Las 9 columnas del modo simplificado
@@ -475,35 +515,81 @@ def normalizar_columna(col: str) -> str:
            .replace("ó", "o").replace("ú", "u").replace("ñ", "n"))
     # Quitar guiones bajos y reemplazar por espacios
     s = re.sub(r"[_\-]+", " ", s)
+    # Quitar caracteres no alfanumericos excepto espacios
+    s = re.sub(r"[^a-z0-9 ]", " ", s)
     # Quitar espacios múltiples
     s = re.sub(r"\s+", " ", s)
-    return s
+    return s.strip()
+
+
+def _palabras(s: str) -> set:
+    """Convierte string a set de palabras."""
+    return set(s.split())
 
 
 def mapear_columnas(df: pd.DataFrame) -> tuple:
-    """Mapea columnas del usuario a nombres internos. Devuelve (df_mapeado, mapeo_info)."""
+    """Mapea columnas del usuario a nombres internos. Devuelve (df_mapeado, mapeo_info).
+
+    Logica:
+    1. Normaliza cada columna del usuario
+    2. Intenta match exacto con MAPEO_NOMBRES
+    3. Si falla, intenta match por palabra unica contenida
+    4. Si no, marca como 'sin match'
+    """
     df = df.copy()
     rename = {}
     info = []
+    targets_ocupados = set()
+
     for col_original in df.columns:
         col_norm = normalizar_columna(col_original)
+
+        # 1. Match exacto
         if col_norm in MAPEO_NOMBRES:
             target = MAPEO_NOMBRES[col_norm]
-            if target not in rename.values():
+            if target not in targets_ocupados:
                 rename[col_original] = target
+                targets_ocupados.add(target)
                 info.append({"original": col_original, "interno": target, "match": "exacto"})
             else:
                 info.append({"original": col_original, "interno": None, "match": "duplicado"})
+            continue
+
+        # 2. Match por palabra unica (caso especial: la columna es UNA sola palabra)
+        palabras_col = _palabras(col_norm)
+        match_encontrado = None
+        if len(palabras_col) == 1:
+            palabra = list(palabras_col)[0]
+            if palabra in MAPEO_NOMBRES:
+                target = MAPEO_NOMBRES[palabra]
+                if target not in targets_ocupados:
+                    match_encontrado = target
+
+        if match_encontrado:
+            rename[col_original] = match_encontrado
+            targets_ocupados.add(match_encontrado)
+            info.append({"original": col_original, "interno": match_encontrado, "match": "exacto"})
+            continue
+
+        # 3. Match por frase: palabras del key son subset de las palabras de la columna
+        # Esto evita que "credit" matchee "credit history" porque "credit" tiene
+        # solo 1 palabra pero "credit history" tiene 2 (history no es subset de credit)
+        match_encontrado = None
+        for key, val in MAPEO_NOMBRES.items():
+            if val in targets_ocupados:
+                continue
+            palabras_key = _palabras(key)
+            if palabras_key.issubset(palabras_col):
+                match_encontrado = val
+                break
+
+        if match_encontrado:
+            rename[col_original] = match_encontrado
+            targets_ocupados.add(match_encontrado)
+            info.append({"original": col_original, "interno": match_encontrado, "match": "parcial"})
         else:
-            # Intentar match parcial
-            for key, val in MAPEO_NOMBRES.items():
-                if key in col_norm or col_norm in key:
-                    if val not in rename.values():
-                        rename[col_original] = val
-                        info.append({"original": col_original, "interno": val, "match": "parcial"})
-                        break
-            else:
-                info.append({"original": col_original, "interno": None, "match": "sin match"})
+            info.append({"original": col_original, "interno": None, "match": "sin match"})
+
     df = df.rename(columns=rename)
     return df, info
 
