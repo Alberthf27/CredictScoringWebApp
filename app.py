@@ -706,8 +706,10 @@ if archivo_subido is not None and len(columnas_requeridas) > 0:
             df_input = cargar_archivo_robusto(archivo_subido)
     except Exception as e:
         st.markdown(
-            f'<div class="error-card"><b>No se pudo leer el archivo</b><br><br>{e}<br><br>'
-            "Verifica que sea un CSV o ARFF válido.</div>",
+            f'<div class="error-card"><b>No se pudo leer el archivo</b><br><br>'
+            f"<b>Detalle:</b> {e}<br><br>"
+            f"Asegúrate de que sea un CSV con datos separados por coma, punto-y-coma, "
+            f"tab o espacio. O un archivo ARFF estándar.</div>",
             unsafe_allow_html=True,
         )
         st.stop()
@@ -716,29 +718,102 @@ if archivo_subido is not None and len(columnas_requeridas) > 0:
     if "class" in df_input.columns:
         df_input = df_input.drop(columns=["class"])
 
-    # Mapear nombres de columnas (amigables -> internos)
-    df_input, info_mapeo = mapear_columnas(df_input)
+    # SIEMPRE mostrar diagnóstico de lo detectado
+    st.markdown(
+        f'<div class="info-card">'
+        f"<b>📄 Archivo detectado:</b> {len(df_input)} filas, {len(df_input.columns)} columnas<br>"
+        f"<b>Columnas encontradas:</b> "
+        + ", ".join(f"<code>{c}</code>" for c in df_input.columns)
+        + "</div>",
+        unsafe_allow_html=True,
+    )
 
-    # Verificar columnas presentes
-    presentes = [c for c in columnas_requeridas if c in df_input.columns]
-    faltantes = [c for c in columnas_requeridas if c not in df_input.columns]
+    # Intentar mapeo automático
+    df_mapeado, info_mapeo = mapear_columnas(df_input)
+    mapeo_exitoso = {m["original"]: m["interno"] for m in info_mapeo if m["interno"]}
+
+    # Verificar columnas presentes después del mapeo
+    presentes_auto = [c for c in columnas_requeridas if c in df_mapeado.columns]
+    faltantes_auto = [c for c in columnas_requeridas if c not in df_mapeado.columns]
+
+    # Si hay columnas faltantes, mostrar mapeo manual
+    if faltantes_auto:
+        st.markdown(
+            f'<div class="warning-card">'
+            f"<b>⚠️ Mapeo automático incompleto</b><br><br>"
+            f"Reconocidas: <b>{len(presentes_auto)}</b> de {len(columnas_requeridas)}<br>"
+            f"Faltan: " + ", ".join(f"<code>{c}</code>" for c in faltantes_auto)
+            + "<br><br><b>Selecciona manualmente qué columna de tu archivo "
+            "corresponde a cada variable, o elige \"Usar valor por defecto\":</b>"
+            + "</div>",
+            unsafe_allow_html=True,
+        )
+
+        # Mapeo manual
+        mapeo_manual = dict(mapeo_exitoso)
+        cols_archivo = ["(Usar valor por defecto)"] + list(df_input.columns)
+
+        st.markdown('<p class="section-title" style="margin-top:1rem;">Mapeo manual de columnas</p>', unsafe_allow_html=True)
+
+        for col_requerida in columnas_requeridas:
+            if col_requerida in presentes_auto:
+                continue
+
+            # Etiqueta amigable
+            etiqueta = {
+                "age": "Edad (age)",
+                "personal_status": "Sexo / Estado civil (personal_status)",
+                "job": "Trabajo (job)",
+                "housing": "Vivienda (housing)",
+                "savings_status": "Cuenta de ahorros (savings_status)",
+                "checking_status": "Cuenta corriente (checking_status)",
+                "credit_amount": "Monto del crédito (credit_amount)",
+                "duration": "Duración (duration)",
+                "purpose": "Propósito (purpose)",
+            }.get(col_requerida, col_requerida)
+
+            seleccion = st.selectbox(
+                f"**{etiqueta}**",
+                options=cols_archivo,
+                key=f"map_{col_requerida}",
+                help="Selecciona la columna de tu archivo o usa el valor por defecto",
+            )
+
+            if seleccion != "(Usar valor por defecto)":
+                mapeo_manual[seleccion] = col_requerida
+
+        # Aplicar mapeo manual
+        df_mapeado = df_input.rename(columns=mapeo_manual)
+        info_mapeo_final = [
+            {"original": k, "interno": v, "match": "manual"}
+            for k, v in mapeo_manual.items()
+        ] + [
+            {"original": m["original"], "interno": m["interno"], "match": m["match"]}
+            for m in info_mapeo
+            if m["interno"] and m["original"] in mapeo_exitoso
+        ]
+    else:
+        df_mapeado = df_input
+        info_mapeo_final = info_mapeo
+
+    # Verificar columnas presentes finales
+    presentes = [c for c in columnas_requeridas if c in df_mapeado.columns]
+    faltantes = [c for c in columnas_requeridas if c not in df_mapeado.columns]
 
     if not presentes:
         st.markdown(
-            f'<div class="error-card"><b>Ninguna columna reconocida</b><br><br>'
-            f"Tu archivo tiene: {', '.join(f'<code>{c}</code>' for c in df_input.columns[:10])}<br><br>"
-            f"<b>Esperadas ({len(columnas_requeridas)}):</b> "
-            + ", ".join(f"<code>{c}</code>" for c in columnas_requeridas)
-            + "</div>",
+            f'<div class="error-card"><b>No se pudo mapear ninguna columna</b><br><br>'
+            f"Usa el selector manual de arriba para indicar qué columna de tu archivo "
+            f"corresponde a cada variable.</div>",
             unsafe_allow_html=True,
         )
         st.stop()
 
-    # Mostrar tabla de mapeo
-    with st.expander(f"🔍 Mapeo de columnas ({len(presentes)} reconocidas, {len(faltantes)} por defecto)", expanded=False):
+    # Mostrar tabla de mapeo final
+    with st.expander(f"🔍 Mapeo de columnas ({len(presentes)}/{len(columnas_requeridas)})", expanded=False):
         mapeo_df = pd.DataFrame([
             {"Tu columna": m["original"], "Mapeada a": m["interno"] or "—", "Tipo": m["match"]}
-            for m in info_mapeo
+            for m in info_mapeo_final
         ])
         st.dataframe(mapeo_df, use_container_width=True, hide_index=True)
 
@@ -755,7 +830,7 @@ if archivo_subido is not None and len(columnas_requeridas) > 0:
         st.stop()
 
     # Aplicar defaults
-    df_completo, defaults_usados = aplicar_defaults(df_input)
+    df_completo, defaults_usados = aplicar_defaults(df_mapeado)
 
     if defaults_usados:
         st.markdown(
@@ -768,7 +843,7 @@ if archivo_subido is not None and len(columnas_requeridas) > 0:
 
     st.markdown(
         f'<div class="success-card"><b>Listo</b> · {len(df_input)} clientes · '
-        f"{len(presentes)} columnas del archivo + {len(defaults_usados)} por defecto</div>",
+        f"{len(presentes)} columnas mapeadas + {len(defaults_usados)} por defecto</div>",
         unsafe_allow_html=True,
     )
 
