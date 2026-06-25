@@ -25,368 +25,288 @@ st.set_page_config(
 
 
 # ============================================================
-# CSS - PROFESIONAL Y LIMPIO (tema claro forzado)
+# CSS - PROFESIONAL Y COLORITO (con soporte modo claro/oscuro)
 # ============================================================
+# Determinar tema
+TEMA_OSCURO = st.session_state.get("tema_oscuro", False)
+
+if TEMA_OSCURO:
+    # Colores modo oscuro
+    BG = "#0f172a"
+    BG_CARD = "#1e293b"
+    BG_SECONDARY = "#334155"
+    TEXT = "#f1f5f9"
+    TEXT_SECONDARY = "#cbd5e0"
+    TEXT_MUTED = "#94a3b8"
+    BORDER = "#334155"
+    PRIMARY = "#60a5fa"
+    PRIMARY_DARK = "#3b82f6"
+    ACCENT = "#38bdf8"
+else:
+    # Colores modo claro
+    BG = "#ffffff"
+    BG_CARD = "#ffffff"
+    BG_SECONDARY = "#f0f7ff"
+    TEXT = "#1a365d"
+    TEXT_SECONDARY = "#2d3748"
+    TEXT_MUTED = "#4a5568"
+    BORDER = "#e2e8f0"
+    PRIMARY = "#2c5282"
+    PRIMARY_DARK = "#1a365d"
+    ACCENT = "#3182ce"
+
 st.markdown(
-    """
+    f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
     /* ============================================
-       FORZAR TEMA CLARO - sin importar el modo del navegador
+       TEMA DINAMICO (claro/oscuro)
        ============================================ */
-    :root {
-        color-scheme: light !important;
-    }
+    :root {{
+        color-scheme: {'dark' if TEMA_OSCURO else 'light'} !important;
+    }}
     .stApp, [data-testid="stApp"], .main, .block-container,
-    [data-testid="stAppViewContainer"], section.main {
-        background-color: #ffffff !important;
-        color: #1a365d !important;
-    }
+    [data-testid="stAppViewContainer"], section.main {{
+        background-color: {BG} !important;
+        color: {TEXT} !important;
+    }}
 
     /* ============================================
        BASE
        ============================================ */
     html, body, [class*="css"], .stMarkdown, p, span, div,
-    .stRadio label, .stMultiSelect label, .stFileUploader label {
+    .stRadio label, .stMultiSelect label, .stFileUploader label {{
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-        color: #1a365d;
-    }
+        color: {TEXT};
+    }}
 
-    #MainMenu { visibility: hidden; }
-    footer { visibility: hidden; }
-    header[data-testid="stHeader"] { background: transparent; height: 0; }
+    #MainMenu {{ visibility: hidden; }}
+    footer {{ visibility: hidden; }}
+    header[data-testid="stHeader"] {{ background: transparent; height: 0; }}
 
-    /* Layout principal centrado y amplio */
-    .block-container {
+    /* Layout */
+    .block-container {{
         padding-top: 1rem;
         padding-bottom: 3rem;
         max-width: 1200px;
-        padding-left: 3rem;
-        padding-right: 3rem;
-        background-color: #ffffff;
-    }
-    [data-testid="stAppViewContainer"] > .main {
+        padding-left: 2rem;
+        padding-right: 2rem;
+        background-color: {BG};
+    }}
+    [data-testid="stAppViewContainer"] > .main {{
         max-width: 1200px;
         margin: 0 auto;
-        background-color: #ffffff;
-    }
+        background-color: {BG};
+    }}
 
     /* ============================================
-       TIPOGRAFÍA (más grande y legible)
+       TIPOGRAFÍA
        ============================================ */
-    h1 { font-size: 2.4rem !important; font-weight: 800 !important; color: #1a365d !important; }
-    h2 { font-size: 1.6rem !important; font-weight: 700 !important; color: #1a365d !important; }
-    h3 { font-size: 1.2rem !important; font-weight: 700 !important; color: #1a365d !important; }
-    p, li { font-size: 0.95rem !important; line-height: 1.6 !important; color: #2d3748 !important; }
-    label { font-size: 0.95rem !important; color: #2d3748 !important; font-weight: 500 !important; }
+    h1 {{ font-size: 1.5rem !important; font-weight: 800 !important; color: white !important; }}
+    h2 {{ font-size: 1.4rem !important; font-weight: 700 !important; color: {TEXT} !important; }}
+    h3 {{ font-size: 1.1rem !important; font-weight: 700 !important; color: {TEXT} !important; }}
+    p, li {{ font-size: 0.92rem !important; line-height: 1.55 !important; color: {TEXT_SECONDARY} !important; }}
+    label {{ font-size: 0.92rem !important; color: {TEXT_SECONDARY} !important; font-weight: 500 !important; }}
 
     /* ============================================
-       HEADER
+       HEADER (compacto, colorito)
        ============================================ */
-    .app-header {
-        padding: 2rem 0 1.5rem 0;
-        border-bottom: 2px solid #e2e8f0;
-        margin-bottom: 2rem;
-        background-color: #ffffff;
-    }
-    .app-header h1 {
-        color: #1a365d !important;
+    .app-header {{
+        background: linear-gradient(135deg, #1e3a5f 0%, #2c5282 50%, #3182ce 100%);
+        padding: 0.9rem 1.3rem;
+        border-radius: 10px;
+        color: white;
+        margin: 0 0 1rem 0;
+        box-shadow: 0 4px 16px rgba(49, 130, 206, 0.25);
+    }}
+    .app-header h1 {{
+        color: white !important;
         margin: 0;
-        letter-spacing: -0.025em;
-    }
-    .app-header p {
-        color: #4a5568 !important;
-        margin: 0.4rem 0 0 0;
-        font-size: 1.05rem;
-    }
+        font-size: 1.4rem !important;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+    }}
+    .app-header p {{
+        color: rgba(255, 255, 255, 0.85) !important;
+        margin: 0.15rem 0 0 0;
+        font-size: 0.82rem;
+    }}
 
     /* ============================================
        SECTION TITLES
        ============================================ */
-    .section-title {
-        font-size: 0.85rem !important;
+    .section-title {{
+        font-size: 0.8rem !important;
         font-weight: 700 !important;
-        color: #1a365d !important;
+        color: {PRIMARY} !important;
         text-transform: uppercase;
         letter-spacing: 0.08em;
-        margin: 1.8rem 0 0.8rem 0;
-        padding-bottom: 0.5rem;
-        border-bottom: 2px solid #cbd5e0;
-    }
+        margin: 1.2rem 0 0.6rem 0;
+        padding-bottom: 0.4rem;
+        border-bottom: 2px solid {ACCENT};
+    }}
 
     /* ============================================
-       CARDS
+       STAT CARDS
        ============================================ */
-    .card {
-        background: #ffffff !important;
-        border: 1px solid #e2e8f0;
+    .stat-card {{
+        background: {BG_CARD} !important;
+        padding: 1rem 1.1rem;
         border-radius: 10px;
-        padding: 1.4rem 1.5rem;
-        margin-bottom: 1rem;
-    }
-    .card-title {
-        font-size: 1rem;
-        font-weight: 700;
-        color: #1a365d;
-        margin: 0 0 0.6rem 0;
-    }
-    .card-desc {
-        font-size: 0.88rem;
-        color: #4a5568;
-        line-height: 1.5;
-        margin: 0;
-    }
-
-    /* ============================================
-       STAT CARDS (más grandes)
-       ============================================ */
-    .stat-card {
-        background: #ffffff !important;
-        padding: 1.3rem 1.4rem;
-        border-radius: 10px;
-        border: 1px solid #e2e8f0;
+        border: 1px solid {BORDER};
         height: 100%;
-    }
-    .stat-card .label {
-        color: #4a5568 !important;
-        font-size: 0.72rem;
+    }}
+    .stat-card .label {{
+        color: {TEXT_MUTED} !important;
+        font-size: 0.7rem;
         font-weight: 700;
         text-transform: uppercase;
         letter-spacing: 0.06em;
-    }
-    .stat-card .value {
-        font-size: 2rem;
+    }}
+    .stat-card .value {{
+        font-size: 1.7rem;
         font-weight: 800;
         line-height: 1.1;
         margin: 0.3rem 0 0 0;
-        color: #1a365d !important;
-    }
-    .stat-card .delta {
-        color: #4a5568 !important;
-        font-size: 0.85rem;
+        color: {TEXT} !important;
+    }}
+    .stat-card .delta {{
+        color: {TEXT_MUTED} !important;
+        font-size: 0.8rem;
         margin-top: 0.3rem;
-    }
-    .stat-card.success { border-left: 4px solid #16a34a; }
-    .stat-card.success .value { color: #15803d !important; }
-    .stat-card.danger { border-left: 4px solid #dc2626; }
-    .stat-card.danger .value { color: #b91c1c !important; }
-    .stat-card.warning { border-left: 4px solid #f59e0b; }
-    .stat-card.warning .value { color: #b45309 !important; }
-    .stat-card.info { border-left: 4px solid #3b82f6; }
-    .stat-card.info .value { color: #1e40af !important; }
+    }}
+    .stat-card.success {{ border-left: 4px solid #16a34a; }}
+    .stat-card.success .value {{ color: #15803d !important; }}
+    .stat-card.danger {{ border-left: 4px solid #dc2626; }}
+    .stat-card.danger .value {{ color: #b91c1c !important; }}
+    .stat-card.warning {{ border-left: 4px solid #f59e0b; }}
+    .stat-card.warning .value {{ color: #b45309 !important; }}
+    .stat-card.info {{ border-left: 4px solid #3182ce; }}
+    .stat-card.info .value {{ color: #1e40af !important; }}
 
     /* ============================================
        ALERTAS
        ============================================ */
-    .info-card {
-        background: #ebf8ff !important;
+    .info-card {{
+        background: {('#1e3a5f' if TEMA_OSCURO else '#ebf8ff')} !important;
         border-left: 4px solid #3182ce;
         border-radius: 6px;
-        padding: 0.9rem 1.1rem;
-        color: #2c5282 !important;
-        font-size: 0.9rem;
-        margin: 0.6rem 0;
-    }
-    .success-card {
-        background: #f0fff4 !important;
+        padding: 0.8rem 1rem;
+        color: {('#bfdbfe' if TEMA_OSCURO else '#2c5282')} !important;
+        font-size: 0.88rem;
+        margin: 0.5rem 0;
+    }}
+    .success-card {{
+        background: {('#14532d' if TEMA_OSCURO else '#f0fff4')} !important;
         border-left: 4px solid #38a169;
         border-radius: 6px;
-        padding: 0.9rem 1.1rem;
-        color: #22543d !important;
-        font-size: 0.9rem;
-        margin: 0.6rem 0;
-    }
-    .error-card {
-        background: #fff5f5 !important;
+        padding: 0.8rem 1rem;
+        color: {('#bbf7d0' if TEMA_OSCURO else '#22543d')} !important;
+        font-size: 0.88rem;
+        margin: 0.5rem 0;
+    }}
+    .error-card {{
+        background: {('#7f1d1d' if TEMA_OSCURO else '#fff5f5')} !important;
         border-left: 4px solid #e53e3e;
         border-radius: 6px;
-        padding: 0.9rem 1.1rem;
-        color: #742a2a !important;
-        font-size: 0.9rem;
-        margin: 0.6rem 0;
-    }
-    .warning-card {
-        background: #fffaf0 !important;
+        padding: 0.8rem 1rem;
+        color: {('#fecaca' if TEMA_OSCURO else '#742a2a')} !important;
+        font-size: 0.88rem;
+        margin: 0.5rem 0;
+    }}
+    .warning-card {{
+        background: {('#78350f' if TEMA_OSCURO else '#fffaf0')} !important;
         border-left: 4px solid #ed8936;
         border-radius: 6px;
-        padding: 0.9rem 1.1rem;
-        color: #7b341e !important;
-        font-size: 0.9rem;
-        margin: 0.6rem 0;
-    }
+        padding: 0.8rem 1rem;
+        color: {('#fde68a' if TEMA_OSCURO else '#7b341e')} !important;
+        font-size: 0.88rem;
+        margin: 0.5rem 0;
+    }}
 
     /* ============================================
        FILE UPLOADER
        ============================================ */
-    [data-testid="stFileUploaderDropzone"] {
-        background: #f7fafc !important;
-        border: 2px dashed #3182ce !important;
+    [data-testid="stFileUploaderDropzone"] {{
+        background: {BG_SECONDARY} !important;
+        border: 2px dashed {ACCENT} !important;
         border-radius: 10px;
-        padding: 2rem;
-    }
-    [data-testid="stFileUploaderDropzone"]:hover {
-        background: #ebf8ff !important;
-        border-color: #1a365d !important;
-    }
-    [data-testid="stFileUploaderDropzone"] section {
-        color: #1a365d !important;
-    }
-    [data-testid="stFileUploaderDropzone"] button {
-        background-color: #1a365d !important;
+        padding: 1.5rem;
+    }}
+    [data-testid="stFileUploaderDropzone"] button {{
+        background-color: {PRIMARY_DARK} !important;
         color: white !important;
-    }
-
-    /* ============================================
-       RADIO BUTTONS
-       ============================================ */
-    .stRadio > label {
-        font-weight: 600 !important;
-        color: #1a365d !important;
-    }
-    .stRadio [role="radiogroup"] {
-        gap: 0.8rem;
-    }
-    .stRadio label[data-baseweb="radio"] {
-        color: #1a365d !important;
-        background-color: #ffffff !important;
-    }
+    }}
 
     /* ============================================
        BOTONES
        ============================================ */
-    .stButton>button {
-        background: #1a365d !important;
+    .stButton>button {{
+        background: linear-gradient(135deg, {PRIMARY_DARK} 0%, {PRIMARY} 100%) !important;
         color: white !important;
         font-weight: 600 !important;
-        font-size: 0.95rem !important;
+        font-size: 0.92rem !important;
         border-radius: 8px !important;
-        padding: 0.7rem 1.8rem !important;
+        padding: 0.6rem 1.5rem !important;
         border: none !important;
-        box-shadow: 0 1px 3px rgba(26, 54, 93, 0.2) !important;
-    }
-    .stButton>button:hover {
-        background: #2c5282 !important;
-        box-shadow: 0 4px 12px rgba(26, 54, 93, 0.3) !important;
-    }
-    .stDownloadButton>button {
-        background: #16a34a !important;
+        box-shadow: 0 2px 6px rgba(44, 82, 130, 0.2) !important;
+    }}
+    .stButton>button:hover {{
+        box-shadow: 0 4px 12px rgba(44, 82, 130, 0.4) !important;
+    }}
+    .stDownloadButton>button {{
+        background: linear-gradient(135deg, #16a34a 0%, #22c55e 100%) !important;
         color: white !important;
         font-weight: 600 !important;
-        font-size: 0.95rem !important;
         border-radius: 8px !important;
-        padding: 0.7rem 1.8rem !important;
+        padding: 0.6rem 1.5rem !important;
         border: none !important;
-        box-shadow: 0 1px 3px rgba(22, 163, 74, 0.2) !important;
-    }
-    .stDownloadButton>button:hover {
-        background: #15803d !important;
-        box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3) !important;
-    }
+    }}
 
     /* ============================================
        TABS
        ============================================ */
-    .stTabs [data-baseweb="tab-list"] {
+    .stTabs [data-baseweb="tab-list"] {{
         gap: 0;
-        border-bottom: 2px solid #e2e8f0;
-        background-color: #ffffff;
-    }
-    .stTabs [data-baseweb="tab"] {
-        background: #ffffff !important;
-        padding: 0.7rem 1.3rem;
+        border-bottom: 2px solid {BORDER};
+        background-color: {BG};
+    }}
+    .stTabs [data-baseweb="tab"] {{
+        background: {BG} !important;
+        padding: 0.6rem 1.2rem;
         font-weight: 600;
-        color: #4a5568 !important;
-        font-size: 0.95rem;
-    }
-    .stTabs [aria-selected="true"] {
-        background: #ffffff !important;
-        color: #1a365d !important;
-        border-bottom: 3px solid #1a365d;
+        color: {TEXT_MUTED} !important;
+    }}
+    .stTabs [aria-selected="true"] {{
+        background: {BG} !important;
+        color: {PRIMARY} !important;
+        border-bottom: 3px solid {PRIMARY};
         margin-bottom: -2px;
-    }
-
-    /* ============================================
-       SELECTBOX / MULTISELECT
-       ============================================ */
-    .stSelectbox [data-baseweb="select"], .stMultiSelect [data-baseweb="select"] {
-        background-color: #ffffff !important;
-        color: #1a365d !important;
-    }
-    .stMultiSelect [data-baseweb="tag"] {
-        background: #ebf8ff !important;
-        color: #2c5282 !important;
-        border: none !important;
-    }
-    [data-baseweb="popover"] {
-        background-color: #ffffff !important;
-    }
-
-    /* ============================================
-       EXPANDER
-       ============================================ */
-    [data-testid="stExpander"] {
-        background-color: #ffffff !important;
-        border: 1px solid #e2e8f0 !important;
-        border-radius: 8px !important;
-    }
-    [data-testid="stExpander"] details {
-        background-color: #ffffff !important;
-    }
-    [data-testid="stExpander"] summary {
-        color: #1a365d !important;
-        font-weight: 600 !important;
-    }
-
-    /* ============================================
-       METRIC
-       ============================================ */
-    [data-testid="stMetricValue"] {
-        font-size: 1.8rem !important;
-        font-weight: 800 !important;
-        color: #1a365d !important;
-    }
-    [data-testid="stMetricLabel"] {
-        font-size: 0.85rem !important;
-        font-weight: 600 !important;
-        text-transform: uppercase !important;
-        letter-spacing: 0.04em !important;
-        color: #4a5568 !important;
-    }
-    [data-testid="stMetricDelta"] {
-        color: #4a5568 !important;
-    }
+    }}
 
     /* Code */
-    code {
-        background: #edf2f7 !important;
-        padding: 0.15rem 0.45rem;
+    code {{
+        background: {BG_SECONDARY} !important;
+        padding: 0.15rem 0.4rem;
         border-radius: 4px;
-        font-size: 0.88em;
-        color: #1a365d !important;
-        font-weight: 500;
-    }
+        font-size: 0.85em;
+        color: {PRIMARY} !important;
+    }}
 
     /* DataFrames */
-    .stDataFrame {
+    .stDataFrame {{
         border-radius: 8px;
-        overflow: hidden;
-        border: 1px solid #e2e8f0;
-        background-color: #ffffff !important;
-    }
+        border: 1px solid {BORDER};
+        background-color: {BG_CARD} !important;
+    }}
 
-    /* Caption */
-    .stCaption, [data-testid="stCaption"] {
-        color: #4a5568 !important;
-    }
+    .stCaption, [data-testid="stCaption"] {{
+        color: {TEXT_MUTED} !important;
+    }}
 
-    /* Espaciado general entre elementos */
-    .element-container { margin-bottom: 0.5rem; }
-
-    /* Streamlit interno */
-    [data-testid="stToolbar"], [data-testid="stDecoration"] {
-        display: none !important;
-    }
+    .element-container {{ margin-bottom: 0.5rem; }}
+    [data-testid="stToolbar"], [data-testid="stDecoration"] {{ display: none !important; }}
     </style>
     """,
     unsafe_allow_html=True,
@@ -774,82 +694,62 @@ def colorear_prediccion(val):
 
 
 # ============================================================
-# HEADER
+# HEADER (compacto + toggle de tema)
 # ============================================================
-st.markdown(
-    """
-    <div class="app-header">
+if "tema_oscuro" not in st.session_state:
+    st.session_state["tema_oscuro"] = False
+
+# Renderizar header via HTML para que sea compacto en una sola linea
+header_emoji = "🌙" if st.session_state["tema_oscuro"] else "☀️"
+header_label = "Oscuro" if st.session_state["tema_oscuro"] else "Claro"
+header_html = f"""
+<div class="app-header">
+    <div class="header-content">
         <h1>🏦 Credit Scoring</h1>
         <p>Predicción de riesgo crediticio · German Credit Data · Random Forest</p>
     </div>
-    """,
-    unsafe_allow_html=True,
-)
+    <button class="theme-toggle" onclick="document.querySelector('[data-testid=stBaseButton]')">
+        {header_emoji} {header_label}
+    </button>
+</div>
+"""
+st.markdown(header_html, unsafe_allow_html=True)
 
+# Toggle real (debajo del header, en sesion state)
+col_t1, col_t2, col_t3 = st.columns([3, 1, 1])
+with col_t3:
+    if st.button(f"{header_emoji} Modo {header_label}", key="theme_toggle", use_container_width=True):
+        st.session_state["tema_oscuro"] = not st.session_state["tema_oscuro"]
+        st.rerun()
 
 # ============================================================
 # LAYOUT EN 2 COLUMNAS
-#   IZQUIERDA: inputs (modo, upload, mapeo)
+#   IZQUIERDA: inputs (upload, mapeo, boton predecir)
 #   DERECHA: outputs (resultados, tabla, graficos)
 # ============================================================
 col_inputs, col_outputs = st.columns([1, 1.4], gap="large")
 
 with col_inputs:
-    # --- 1. MODO DE ANÁLISIS ---
-    st.markdown('<p class="section-title">1. Modo de análisis</p>', unsafe_allow_html=True)
+    # --- 1. CARGAR ARCHIVO ---
+    st.markdown('<p class="section-title">Cargar archivo</p>', unsafe_allow_html=True)
 
-    modo = st.radio(
-        "Selecciona el modo",
-        options=["Completo (20 columnas)", "Simplificado (9 columnas)", "Personalizado"],
-        label_visibility="collapsed",
-    )
-
-    if modo == "Completo (20 columnas)":
-        st.markdown(
-            '<div class="info-card">El archivo debe contener las <b>20 columnas</b> del modelo. '
-            "Si tu archivo tiene menos, usa el modo Simplificado o Personalizado.</div>",
-            unsafe_allow_html=True,
+    col_up, col_clear = st.columns([5, 1])
+    with col_up:
+        archivo_subido = st.file_uploader(
+            "Arrastra o selecciona tu archivo CSV/ARFF",
+            type=["csv", "arff", "txt", "data"],
+            help="Formatos: CSV (con/sin headers, formato UCI), ARFF. 20 columnas del modelo. Las faltantes se completan automaticamente.",
+            label_visibility="collapsed",
         )
-        columnas_requeridas = feature_names
-    elif modo == "Simplificado (9 columnas)":
-        st.markdown(
-            '<div class="info-card">Tu archivo necesita solo estas <b>9 columnas</b> '
-            "(reconocemos variaciones como <code>Edad</code>/<code>Age</code>, "
-            "<code>Sexo</code>/<code>Sex</code>, etc.). Las 11 restantes se completan automáticamente.<br><br>"
-            "<b>Columnas reconocidas:</b> "
-            "<code>Age</code>, <code>Sex</code>, <code>Job</code>, <code>Housing</code>, "
-            "<code>Saving accounts</code>, <code>Checking account</code>, "
-            "<code>Credit amount</code>, <code>Duration</code>, <code>Purpose</code>"
-            "</div>",
-            unsafe_allow_html=True,
-        )
-        columnas_requeridas = COLUMNAS_SIMPLIFICADAS
-    else:  # Personalizado
-        cols_sel = st.multiselect(
-            "Columnas en tu archivo",
-            options=feature_names,
-            default=feature_names,
-            help="Las no seleccionadas se completan con valores por defecto",
-        )
-        columnas_requeridas = cols_sel
-        if len(cols_sel) == 0:
-            st.markdown('<div class="warning-card">⚠️ Selecciona al menos una columna.</div>', unsafe_allow_html=True)
-        else:
-            st.markdown(
-                f'<div class="info-card">Tu archivo: <b>{len(cols_sel)} columnas</b>. '
-                f"Las {20 - len(cols_sel)} restantes se completan automáticamente.</div>",
-                unsafe_allow_html=True,
-            )
+    with col_clear:
+        if st.button("🗑️", key="clear_file", help="Quitar archivo y volver al inicio", use_container_width=True):
+            if "resultados" in st.session_state:
+                del st.session_state["resultados"]
+            st.rerun()
 
-    # --- 2. CARGAR ARCHIVO ---
-    st.markdown('<p class="section-title">2. Cargar archivo</p>', unsafe_allow_html=True)
-
-    archivo_subido = st.file_uploader(
-        "Arrastra o selecciona tu archivo CSV/ARFF",
-        type=["csv", "arff", "txt", "data"],
-        help="Formatos soportados: CSV (con/sin headers, formato UCI), ARFF.",
-        label_visibility="collapsed",
-    )
+    # Modo fijo: completo (20 columnas) con auto-fill de defaults
+    modo = "Completo (20 columnas)"
+    columnas_requeridas = feature_names
 
 # ============================================================
 # ============================================================
@@ -878,7 +778,8 @@ with col_inputs:
             f'<div class="info-card">'
             f"<b>📄 Archivo detectado:</b> {len(df_input)} filas, {len(df_input.columns)} columnas<br>"
             f"<b>Columnas encontradas:</b> "
-            + ", ".join(f"<code>{c}</code>" for c in df_input.columns)
+            + ", ".join(f"<code>{c}</code>" for c in df_input.columns[:5])
+            + ("..." if len(df_input.columns) > 5 else "")
             + "</div>",
             unsafe_allow_html=True,
         )
@@ -1020,13 +921,13 @@ with col_inputs:
 with col_outputs:
     st.markdown('<p class="section-title">Resultados</p>', unsafe_allow_html=True)
 
-    if "resultados" not in st.session_state:
+    if "resultados" not in st.session_state or archivo_subido is None:
         st.markdown(
             '''
-            <div style="text-align:center;padding:4rem 1rem;color:#9ca3af;">
-                <div style="font-size:3.5rem;opacity:0.4;margin-bottom:0.5rem;">📊</div>
-                <p style="font-size:1.05rem;font-weight:600;color:#1a365d;margin:0;">Esperando predicción</p>
-                <p style="font-size:0.9rem;margin:0.3rem 0 0 0;">Sube un archivo y haz clic en <b>Predecir</b></p>
+            <div style="text-align:center;padding:3rem 1rem;color:#9ca3af;">
+                <div style="font-size:3rem;opacity:0.4;margin-bottom:0.5rem;">📊</div>
+                <p style="font-size:1rem;font-weight:600;color:#1a365d;margin:0;">Esperando predicción</p>
+                <p style="font-size:0.85rem;margin:0.3rem 0 0 0;">Sube un archivo y haz clic en <b>Predecir</b></p>
             </div>
             ''',
             unsafe_allow_html=True,
