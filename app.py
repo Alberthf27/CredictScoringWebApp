@@ -110,27 +110,44 @@ st.markdown(
     label {{ font-size: 0.92rem !important; color: {TEXT_SECONDARY} !important; font-weight: 500 !important; }}
 
     /* ============================================
-       HEADER (compacto, colorito)
+       HEADER (ultra-compacto, colorito)
        ============================================ */
     .app-header {{
         background: linear-gradient(135deg, #1e3a5f 0%, #2c5282 50%, #3182ce 100%);
-        padding: 0.9rem 1.3rem;
-        border-radius: 10px;
+        padding: 0.7rem 1.2rem;
+        border-radius: 8px;
         color: white;
-        margin: 0 0 1rem 0;
-        box-shadow: 0 4px 16px rgba(49, 130, 206, 0.25);
+        margin: 0 0 0.8rem 0;
+        box-shadow: 0 3px 12px rgba(49, 130, 206, 0.25);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
     }}
     .app-header h1 {{
         color: white !important;
         margin: 0;
-        font-size: 1.4rem !important;
+        font-size: 1.25rem !important;
         font-weight: 800;
         letter-spacing: -0.02em;
+        line-height: 1.1;
     }}
     .app-header p {{
         color: rgba(255, 255, 255, 0.85) !important;
-        margin: 0.15rem 0 0 0;
-        font-size: 0.82rem;
+        margin: 0.1rem 0 0 0;
+        font-size: 0.78rem;
+        line-height: 1.2;
+    }}
+    .app-header .header-left {{ flex: 1; }}
+    .app-header .theme-btn {{
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 6px;
+        padding: 0.35rem 0.7rem;
+        font-size: 0.8rem;
+        font-weight: 500;
     }}
 
     /* ============================================
@@ -699,26 +716,24 @@ def colorear_prediccion(val):
 if "tema_oscuro" not in st.session_state:
     st.session_state["tema_oscuro"] = False
 
-# Renderizar header via HTML para que sea compacto en una sola linea
+# Renderizar header via HTML compacto + toggle real
 header_emoji = "🌙" if st.session_state["tema_oscuro"] else "☀️"
 header_label = "Oscuro" if st.session_state["tema_oscuro"] else "Claro"
 header_html = f"""
 <div class="app-header">
-    <div class="header-content">
+    <div class="header-left">
         <h1>🏦 Credit Scoring</h1>
         <p>Predicción de riesgo crediticio · German Credit Data · Random Forest</p>
     </div>
-    <button class="theme-toggle" onclick="document.querySelector('[data-testid=stBaseButton]')">
-        {header_emoji} {header_label}
-    </button>
+    <button class="theme-btn">⚙️</button>
 </div>
 """
 st.markdown(header_html, unsafe_allow_html=True)
 
-# Toggle real (debajo del header, en sesion state)
-col_t1, col_t2, col_t3 = st.columns([3, 1, 1])
-with col_t3:
-    if st.button(f"{header_emoji} Modo {header_label}", key="theme_toggle", use_container_width=True):
+# Toggle de tema (botón real al lado del header, en una sola linea)
+col_t1, col_t2, col_t3 = st.columns([6, 1, 0.5])
+with col_t2:
+    if st.button(f"{header_emoji} {header_label}", key="theme_toggle", use_container_width=True, help="Cambiar tema"):
         st.session_state["tema_oscuro"] = not st.session_state["tema_oscuro"]
         st.rerun()
 
@@ -730,26 +745,62 @@ with col_t3:
 col_inputs, col_outputs = st.columns([1, 1.4], gap="large")
 
 with col_inputs:
-    # --- 1. CARGAR ARCHIVO ---
-    st.markdown('<p class="section-title">Cargar archivo</p>', unsafe_allow_html=True)
+    # --- 1. MODO DE ANÁLISIS ---
+    st.markdown('<p class="section-title">1. Modo de análisis</p>', unsafe_allow_html=True)
+
+    modo = st.radio(
+        "modo",
+        options=["Completo (20)", "Simplificado (9)", "Personalizado"],
+        label_visibility="collapsed",
+        horizontal=True,
+    )
+
+    if modo == "Completo (20)":
+        st.markdown(
+            '<div class="info-card" style="font-size:0.8rem;padding:0.5rem 0.7rem;">'
+            "20 columnas del modelo.</div>",
+            unsafe_allow_html=True,
+        )
+        columnas_requeridas = feature_names
+    elif modo == "Simplificado (9)":
+        st.markdown(
+            '<div class="info-card" style="font-size:0.8rem;padding:0.5rem 0.7rem;">'
+            "9 columnas: <code>Age</code>, <code>Sex</code>, <code>Job</code>, "
+            "<code>Housing</code>, <code>Saving</code>, <code>Checking</code>, "
+            "<code>Credit</code>, <code>Duration</code>, <code>Purpose</code></div>",
+            unsafe_allow_html=True,
+        )
+        columnas_requeridas = COLUMNAS_SIMPLIFICADAS
+    else:
+        st.markdown(
+            '<div class="info-card" style="font-size:0.8rem;padding:0.5rem 0.7rem;">'
+            "Selecciona las columnas en el archivo.</div>",
+            unsafe_allow_html=True,
+        )
+        cols_sel = st.multiselect(
+            "Columnas",
+            options=feature_names,
+            default=feature_names,
+            label_visibility="collapsed",
+        )
+        columnas_requeridas = cols_sel
+
+    # --- 2. CARGAR ARCHIVO ---
+    st.markdown('<p class="section-title">2. Cargar archivo</p>', unsafe_allow_html=True)
 
     col_up, col_clear = st.columns([5, 1])
     with col_up:
         archivo_subido = st.file_uploader(
             "Arrastra o selecciona tu archivo CSV/ARFF",
             type=["csv", "arff", "txt", "data"],
-            help="Formatos: CSV (con/sin headers, formato UCI), ARFF. 20 columnas del modelo. Las faltantes se completan automaticamente.",
+            help="Formatos: CSV (con/sin headers, formato UCI), ARFF. Las columnas faltantes se completan automaticamente.",
             label_visibility="collapsed",
         )
     with col_clear:
-        if st.button("🗑️", key="clear_file", help="Quitar archivo y volver al inicio", use_container_width=True):
+        if st.button("🗑️", key="clear_file", help="Quitar archivo", use_container_width=True):
             if "resultados" in st.session_state:
                 del st.session_state["resultados"]
             st.rerun()
-
-    # Modo fijo: completo (20 columnas) con auto-fill de defaults
-    modo = "Completo (20 columnas)"
-    columnas_requeridas = feature_names
 
 # ============================================================
 # ============================================================
