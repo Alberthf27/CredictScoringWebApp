@@ -788,224 +788,225 @@ st.markdown(
 
 
 # ============================================================
-# SELECTOR DE MODO
+# LAYOUT EN 2 COLUMNAS
+#   IZQUIERDA: inputs (modo, upload, mapeo)
+#   DERECHA: outputs (resultados, tabla, graficos)
 # ============================================================
-st.markdown('<p class="section-title">1. Modo de análisis</p>', unsafe_allow_html=True)
+col_inputs, col_outputs = st.columns([1, 1.4], gap="large")
 
-modo = st.radio(
-    "Selecciona el modo",
-    options=["Completo (20 columnas)", "Simplificado (9 columnas)", "Personalizado"],
-    horizontal=True,
-    label_visibility="collapsed",
-)
+with col_inputs:
+    # --- 1. MODO DE ANÁLISIS ---
+    st.markdown('<p class="section-title">1. Modo de análisis</p>', unsafe_allow_html=True)
 
-if modo == "Completo (20 columnas)":
-    st.markdown(
-        '<div class="info-card">El archivo debe contener las <b>20 columnas</b> del modelo. '
-        "Si tu archivo tiene menos, usa el modo Simplificado o Personalizado.</div>",
-        unsafe_allow_html=True,
-    )
-    columnas_requeridas = feature_names
-elif modo == "Simplificado (9 columnas)":
-    st.markdown(
-        '<div class="info-card">Tu archivo necesita solo estas <b>9 columnas</b> '
-        "(reconocemos variaciones como <code>Edad</code>/<code>Age</code>, "
-        "<code>Sexo</code>/<code>Sex</code>, etc.). Las 11 restantes se completan automáticamente.<br><br>"
-        "<b>Columnas reconocidas:</b> "
-        "<code>Age</code>, <code>Sex</code>, <code>Job</code>, <code>Housing</code>, "
-        "<code>Saving accounts</code>, <code>Checking account</code>, "
-        "<code>Credit amount</code>, <code>Duration</code>, <code>Purpose</code>"
-        "</div>",
-        unsafe_allow_html=True,
-    )
-    columnas_requeridas = COLUMNAS_SIMPLIFICADAS
-else:  # Personalizado
-    cols_sel = st.multiselect(
-        "Selecciona las columnas que tendrá tu archivo",
-        options=feature_names,
-        default=feature_names,
-        help="Las columnas no seleccionadas se completan con valores por defecto del training set",
-    )
-    columnas_requeridas = cols_sel
-    if len(cols_sel) == 0:
-        st.markdown('<div class="warning-card">⚠️ Selecciona al menos una columna.</div>', unsafe_allow_html=True)
-    else:
-        st.markdown(
-            f'<div class="info-card">Tu archivo tendrá <b>{len(cols_sel)} columnas</b>. '
-            f"Las {20 - len(cols_sel)} restantes se completan automáticamente con valores típicos del dataset.</div>",
-            unsafe_allow_html=True,
-        )
-
-
-# ============================================================
-# UPLOAD
-# ============================================================
-st.markdown('<p class="section-title">2. Cargar archivo</p>', unsafe_allow_html=True)
-
-archivo_subido = st.file_uploader(
-    "Arrastra o selecciona tu archivo CSV/ARFF",
-    type=["csv", "arff", "txt", "data"],
-    help="Formatos soportados: CSV (con o sin headers, formato UCI), ARFF.",
-    label_visibility="collapsed",
-)
-
-# ============================================================
-# PROCESAMIENTO (debajo de las 2 columnas, full width)
-# ============================================================
-if archivo_subido is not None and len(columnas_requeridas) > 0:
-    try:
-        with st.spinner("Leyendo archivo..."):
-            df_input = cargar_archivo_robusto(archivo_subido)
-    except Exception as e:
-        st.markdown(
-            f'<div class="error-card"><b>No se pudo leer el archivo</b><br><br>'
-            f"<b>Detalle:</b> {e}<br><br>"
-            f"Asegúrate de que sea un CSV con datos separados por coma, punto-y-coma, "
-            f"tab o espacio. O un archivo ARFF estándar.</div>",
-            unsafe_allow_html=True,
-        )
-        st.stop()
-
-    # Quitar columna target si existe
-    if "class" in df_input.columns:
-        df_input = df_input.drop(columns=["class"])
-
-    # Diagnóstico
-    st.markdown(
-        f'<div class="info-card">'
-        f"<b>📄 Archivo detectado:</b> {len(df_input)} filas, {len(df_input.columns)} columnas<br>"
-        f"<b>Columnas encontradas:</b> "
-        + ", ".join(f"<code>{c}</code>" for c in df_input.columns)
-        + "</div>",
-        unsafe_allow_html=True,
+    modo = st.radio(
+        "Selecciona el modo",
+        options=["Completo (20 columnas)", "Simplificado (9 columnas)", "Personalizado"],
+        label_visibility="collapsed",
     )
 
-    # Mapeo automático
-    df_mapeado, info_mapeo = mapear_columnas(df_input)
-    mapeo_exitoso = {m["original"]: m["interno"] for m in info_mapeo if m["interno"]}
-    presentes_auto = [c for c in columnas_requeridas if c in df_mapeado.columns]
-    faltantes_auto = [c for c in columnas_requeridas if c not in df_mapeado.columns]
-
-    # Mapeo manual si hay faltantes
-    if faltantes_auto:
+    if modo == "Completo (20 columnas)":
         st.markdown(
-            f'<div class="warning-card">'
-            f"<b>⚠️ Mapeo automático incompleto</b><br><br>"
-            f"Reconocidas: <b>{len(presentes_auto)}</b> de {len(columnas_requeridas)}<br>"
-            f"Faltan: " + ", ".join(f"<code>{c}</code>" for c in faltantes_auto)
-            + "<br><br><b>Selecciona manualmente qué columna de tu archivo "
-            "corresponde a cada variable, o elige \"Usar valor por defecto\":</b>"
-            + "</div>",
+            '<div class="info-card">El archivo debe contener las <b>20 columnas</b> del modelo. '
+            "Si tu archivo tiene menos, usa el modo Simplificado o Personalizado.</div>",
             unsafe_allow_html=True,
         )
-
-        mapeo_manual = dict(mapeo_exitoso)
-        cols_archivo = ["(Usar valor por defecto)"] + list(df_input.columns)
-
+        columnas_requeridas = feature_names
+    elif modo == "Simplificado (9 columnas)":
         st.markdown(
-            '<p class="section-title" style="margin-top:1rem;">Mapeo manual de columnas</p>',
+            '<div class="info-card">Tu archivo necesita solo estas <b>9 columnas</b> '
+            "(reconocemos variaciones como <code>Edad</code>/<code>Age</code>, "
+            "<code>Sexo</code>/<code>Sex</code>, etc.). Las 11 restantes se completan automáticamente.<br><br>"
+            "<b>Columnas reconocidas:</b> "
+            "<code>Age</code>, <code>Sex</code>, <code>Job</code>, <code>Housing</code>, "
+            "<code>Saving accounts</code>, <code>Checking account</code>, "
+            "<code>Credit amount</code>, <code>Duration</code>, <code>Purpose</code>"
+            "</div>",
             unsafe_allow_html=True,
         )
-
-        for col_requerida in columnas_requeridas:
-            if col_requerida in presentes_auto:
-                continue
-
-            etiqueta = {
-                "age": "Edad (age)",
-                "personal_status": "Sexo / Estado civil (personal_status)",
-                "job": "Trabajo (job)",
-                "housing": "Vivienda (housing)",
-                "savings_status": "Cuenta de ahorros (savings_status)",
-                "checking_status": "Cuenta corriente (checking_status)",
-                "credit_amount": "Monto del crédito (credit_amount)",
-                "duration": "Duración (duration)",
-                "purpose": "Propósito (purpose)",
-            }.get(col_requerida, col_requerida)
-
-            seleccion = st.selectbox(
-                f"**{etiqueta}**",
-                options=cols_archivo,
-                key=f"map_{col_requerida}",
-                help="Selecciona la columna de tu archivo o usa el valor por defecto",
+        columnas_requeridas = COLUMNAS_SIMPLIFICADAS
+    else:  # Personalizado
+        cols_sel = st.multiselect(
+            "Columnas en tu archivo",
+            options=feature_names,
+            default=feature_names,
+            help="Las no seleccionadas se completan con valores por defecto",
+        )
+        columnas_requeridas = cols_sel
+        if len(cols_sel) == 0:
+            st.markdown('<div class="warning-card">⚠️ Selecciona al menos una columna.</div>', unsafe_allow_html=True)
+        else:
+            st.markdown(
+                f'<div class="info-card">Tu archivo: <b>{len(cols_sel)} columnas</b>. '
+                f"Las {20 - len(cols_sel)} restantes se completan automáticamente.</div>",
+                unsafe_allow_html=True,
             )
 
-            if seleccion != "(Usar valor por defecto)":
-                mapeo_manual[seleccion] = col_requerida
+    # --- 2. CARGAR ARCHIVO ---
+    st.markdown('<p class="section-title">2. Cargar archivo</p>', unsafe_allow_html=True)
 
-        # Aplicar mapeo manual
-        df_mapeado = df_input.rename(columns=mapeo_manual)
-        info_mapeo_final = [
-            {"original": k, "interno": v, "match": "manual"}
-            for k, v in mapeo_manual.items()
-        ] + [
-            {"original": m["original"], "interno": m["interno"], "match": m["match"]}
-            for m in info_mapeo
-            if m["interno"] and m["original"] in mapeo_exitoso
-        ]
-    else:
-        df_mapeado = df_input
-        info_mapeo_final = info_mapeo
+    archivo_subido = st.file_uploader(
+        "Arrastra o selecciona tu archivo CSV/ARFF",
+        type=["csv", "arff", "txt", "data"],
+        help="Formatos soportados: CSV (con/sin headers, formato UCI), ARFF.",
+        label_visibility="collapsed",
+    )
 
-    # Verificar columnas presentes finales
-    presentes = [c for c in columnas_requeridas if c in df_mapeado.columns]
-    faltantes = [c for c in columnas_requeridas if c not in df_mapeado.columns]
+# ============================================================
+# ============================================================
+# PROCESAMIENTO (dentro de col_inputs, debajo del uploader)
+# ============================================================
+    if archivo_subido is not None and len(columnas_requeridas) > 0:
+        try:
+            with st.spinner("Leyendo archivo..."):
+                df_input = cargar_archivo_robusto(archivo_subido)
+        except Exception as e:
+            st.markdown(
+                f'<div class="error-card"><b>No se pudo leer el archivo</b><br><br>'
+                f"<b>Detalle:</b> {e}<br><br>"
+                f"Asegúrate de que sea un CSV con datos separados por coma, punto-y-coma, "
+                f"tab o espacio. O un archivo ARFF estándar.</div>",
+                unsafe_allow_html=True,
+            )
+            st.stop()
 
-    if not presentes:
+        # Quitar columna target si existe
+        if "class" in df_input.columns:
+            df_input = df_input.drop(columns=["class"])
+
+        # Diagnóstico
         st.markdown(
-            f'<div class="error-card"><b>No se pudo mapear ninguna columna</b><br><br>'
-            f"Usa el selector manual de arriba para indicar qué columna de tu archivo "
-            f"corresponde a cada variable.</div>",
-            unsafe_allow_html=True,
-        )
-        st.stop()
-
-    # Mostrar tabla de mapeo final
-    with st.expander(f"🔍 Mapeo de columnas ({len(presentes)}/{len(columnas_requeridas)})", expanded=False):
-        mapeo_df = pd.DataFrame([
-            {"Tu columna": m["original"], "Mapeada a": m["interno"] or "—", "Tipo": m["match"]}
-            for m in info_mapeo_final
-        ])
-        st.dataframe(mapeo_df, use_container_width=True, hide_index=True)
-
-    # Si modo completo, requerir las 20
-    if modo == "Completo (20 columnas)" and len(presentes) < 20:
-        st.markdown(
-            f'<div class="error-card"><b>Modo completo requiere las 20 columnas</b><br><br>'
-            f"Solo se encontraron {len(presentes)} de 20. Faltan: "
-            + ", ".join(f"<code>{c}</code>" for c in faltantes[:5])
-            + ("..." if len(faltantes) > 5 else "")
-            + '<br><br>💡 Cambia a modo <b>Simplificado</b> o <b>Personalizado</b>.</div>',
-            unsafe_allow_html=True,
-        )
-        st.stop()
-
-    # Aplicar defaults
-    df_completo, defaults_usados = aplicar_defaults(df_mapeado)
-
-    if defaults_usados:
-        st.markdown(
-            f'<div class="info-card"><b>{len(defaults_usados)} columnas</b> completadas con valores por defecto: '
-            + ", ".join(f"<code>{c}</code>" for c in defaults_usados[:5])
-            + ("..." if len(defaults_usados) > 5 else "")
+            f'<div class="info-card">'
+            f"<b>📄 Archivo detectado:</b> {len(df_input)} filas, {len(df_input.columns)} columnas<br>"
+            f"<b>Columnas encontradas:</b> "
+            + ", ".join(f"<code>{c}</code>" for c in df_input.columns)
             + "</div>",
             unsafe_allow_html=True,
         )
 
-    st.markdown(
-        f'<div class="success-card"><b>Listo</b> · {len(df_input)} clientes · '
-        f"{len(presentes)} columnas mapeadas + {len(defaults_usados)} por defecto</div>",
-        unsafe_allow_html=True,
-    )
+        # Mapeo automático
+        df_mapeado, info_mapeo = mapear_columnas(df_input)
+        mapeo_exitoso = {m["original"]: m["interno"] for m in info_mapeo if m["interno"]}
+        presentes_auto = [c for c in columnas_requeridas if c in df_mapeado.columns]
+        faltantes_auto = [c for c in columnas_requeridas if c not in df_mapeado.columns]
 
-    with st.expander("Vista previa (primeras 5 filas)", expanded=False):
-        st.dataframe(df_input.head(5), use_container_width=True, hide_index=True)
+        # Mapeo manual si hay faltantes
+        if faltantes_auto:
+            st.markdown(
+                f'<div class="warning-card">'
+                f"<b>⚠️ Mapeo automático incompleto</b><br><br>"
+                f"Reconocidas: <b>{len(presentes_auto)}</b> de {len(columnas_requeridas)}<br>"
+                f"Faltan: " + ", ".join(f"<code>{c}</code>" for c in faltantes_auto)
+                + "<br><br><b>Selecciona manualmente qué columna de tu archivo "
+                "corresponde a cada variable, o elige \"Usar valor por defecto\":</b>"
+                + "</div>",
+                unsafe_allow_html=True,
+            )
 
-    # Botón de predicción
-    st.markdown("")
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
-        if st.button("Predecir", type="primary", use_container_width=True):
+            mapeo_manual = dict(mapeo_exitoso)
+            cols_archivo = ["(Usar valor por defecto)"] + list(df_input.columns)
+
+            st.markdown(
+                '<p class="section-title" style="margin-top:1rem;">Mapeo manual de columnas</p>',
+                unsafe_allow_html=True,
+            )
+
+            for col_requerida in columnas_requeridas:
+                if col_requerida in presentes_auto:
+                    continue
+
+                etiqueta = {
+                    "age": "Edad (age)",
+                    "personal_status": "Sexo / Estado civil (personal_status)",
+                    "job": "Trabajo (job)",
+                    "housing": "Vivienda (housing)",
+                    "savings_status": "Cuenta de ahorros (savings_status)",
+                    "checking_status": "Cuenta corriente (checking_status)",
+                    "credit_amount": "Monto del crédito (credit_amount)",
+                    "duration": "Duración (duration)",
+                    "purpose": "Propósito (purpose)",
+                }.get(col_requerida, col_requerida)
+
+                seleccion = st.selectbox(
+                    f"**{etiqueta}**",
+                    options=cols_archivo,
+                    key=f"map_{col_requerida}",
+                    help="Selecciona la columna de tu archivo o usa el valor por defecto",
+                )
+
+                if seleccion != "(Usar valor por defecto)":
+                    mapeo_manual[seleccion] = col_requerida
+
+            # Aplicar mapeo manual
+            df_mapeado = df_input.rename(columns=mapeo_manual)
+            info_mapeo_final = [
+                {"original": k, "interno": v, "match": "manual"}
+                for k, v in mapeo_manual.items()
+            ] + [
+                {"original": m["original"], "interno": m["interno"], "match": m["match"]}
+                for m in info_mapeo
+                if m["interno"] and m["original"] in mapeo_exitoso
+            ]
+        else:
+            df_mapeado = df_input
+            info_mapeo_final = info_mapeo
+
+        # Verificar columnas presentes finales
+        presentes = [c for c in columnas_requeridas if c in df_mapeado.columns]
+        faltantes = [c for c in columnas_requeridas if c not in df_mapeado.columns]
+
+        if not presentes:
+            st.markdown(
+                f'<div class="error-card"><b>No se pudo mapear ninguna columna</b><br><br>'
+                f"Usa el selector manual de arriba para indicar qué columna de tu archivo "
+                f"corresponde a cada variable.</div>",
+                unsafe_allow_html=True,
+            )
+            st.stop()
+
+        # Mostrar tabla de mapeo final
+        with st.expander(f"🔍 Mapeo de columnas ({len(presentes)}/{len(columnas_requeridas)})", expanded=False):
+            mapeo_df = pd.DataFrame([
+                {"Tu columna": m["original"], "Mapeada a": m["interno"] or "—", "Tipo": m["match"]}
+                for m in info_mapeo_final
+            ])
+            st.dataframe(mapeo_df, use_container_width=True, hide_index=True)
+
+        # Si modo completo, requerir las 20
+        if modo == "Completo (20 columnas)" and len(presentes) < 20:
+            st.markdown(
+                f'<div class="error-card"><b>Modo completo requiere las 20 columnas</b><br><br>'
+                f"Solo se encontraron {len(presentes)} de 20. Faltan: "
+                + ", ".join(f"<code>{c}</code>" for c in faltantes[:5])
+                + ("..." if len(faltantes) > 5 else "")
+                + '<br><br>💡 Cambia a modo <b>Simplificado</b> o <b>Personalizado</b>.</div>',
+                unsafe_allow_html=True,
+            )
+            st.stop()
+
+        # Aplicar defaults
+        df_completo, defaults_usados = aplicar_defaults(df_mapeado)
+
+        if defaults_usados:
+            st.markdown(
+                f'<div class="info-card"><b>{len(defaults_usados)} columnas</b> completadas con valores por defecto: '
+                + ", ".join(f"<code>{c}</code>" for c in defaults_usados[:5])
+                + ("..." if len(defaults_usados) > 5 else "")
+                + "</div>",
+                unsafe_allow_html=True,
+            )
+
+        st.markdown(
+            f'<div class="success-card"><b>Listo</b> · {len(df_input)} clientes · '
+            f"{len(presentes)} columnas mapeadas + {len(defaults_usados)} por defecto</div>",
+            unsafe_allow_html=True,
+        )
+
+        with st.expander("Vista previa (primeras 5 filas)", expanded=False):
+            st.dataframe(df_input.head(5), use_container_width=True, hide_index=True)
+
+        # Botón de predicción
+        st.markdown("")
+        if st.button("🚀 Predecir", type="primary", use_container_width=True):
             with st.spinner("Procesando..."):
                 try:
                     st.session_state["resultados"] = predecir_lote(df_completo)
@@ -1013,89 +1014,98 @@ if archivo_subido is not None and len(columnas_requeridas) > 0:
                     st.error(f"Error: {e}")
                     st.stop()
 
-
 # ============================================================
-# RESULTADOS
+# COLUMNA DERECHA: SALIDAS Y RESULTADOS
 # ============================================================
-if "resultados" in st.session_state:
-    df_resultados = st.session_state["resultados"]
-
-    st.markdown("---")
+with col_outputs:
     st.markdown('<p class="section-title">Resultados</p>', unsafe_allow_html=True)
 
-    n_total = len(df_resultados)
-    n_solv = (df_resultados["Predicción"].str.contains("Solvente")).sum()
-    n_mor = (df_resultados["Predicción"].str.contains("Moroso")).sum()
-    pct_solv = n_solv / n_total * 100
-    pct_mor = n_mor / n_total * 100
-    riesgo_promedio = df_resultados["Prob. Moroso (%)"].mean()
+    if "resultados" not in st.session_state:
+        st.markdown(
+            '''
+            <div style="text-align:center;padding:4rem 1rem;color:#9ca3af;">
+                <div style="font-size:3.5rem;opacity:0.4;margin-bottom:0.5rem;">📊</div>
+                <p style="font-size:1.05rem;font-weight:600;color:#1a365d;margin:0;">Esperando predicción</p>
+                <p style="font-size:0.9rem;margin:0.3rem 0 0 0;">Sube un archivo y haz clic en <b>Predecir</b></p>
+            </div>
+            ''',
+            unsafe_allow_html=True,
+        )
+    else:
+        df_resultados = st.session_state["resultados"]
 
-    # Stat cards
-    c1, c2, c3, c4 = st.columns(4)
-    with c1:
-        st.markdown(
-            f'<div class="stat-card info"><div class="label">Total</div>'
-            f'<div class="value">{n_total}</div></div>',
-            unsafe_allow_html=True,
-        )
-    with c2:
-        st.markdown(
-            f'<div class="stat-card success"><div class="label">Solventes</div>'
-            f'<div class="value">{n_solv}</div>'
-            f'<div class="delta">{pct_solv:.1f}%</div></div>',
-            unsafe_allow_html=True,
-        )
-    with c3:
-        st.markdown(
-            f'<div class="stat-card danger"><div class="label">Morosos</div>'
-            f'<div class="value">{n_mor}</div>'
-            f'<div class="delta">{pct_mor:.1f}%</div></div>',
-            unsafe_allow_html=True,
-        )
-    with c4:
-        cls = "success" if riesgo_promedio < 40 else ("warning" if riesgo_promedio < 60 else "danger")
-        st.markdown(
-            f'<div class="stat-card {cls}"><div class="label">Riesgo prom.</div>'
-            f'<div class="value">{riesgo_promedio:.1f}%</div></div>',
-            unsafe_allow_html=True,
-        )
+        n_total = len(df_resultados)
+        n_solv = (df_resultados["Predicción"].str.contains("Solvente")).sum()
+        n_mor = (df_resultados["Predicción"].str.contains("Moroso")).sum()
+        pct_solv = n_solv / n_total * 100
+        pct_mor = n_mor / n_total * 100
+        riesgo_promedio = df_resultados["Prob. Moroso (%)"].mean()
 
-    st.markdown("")
-    styled = df_resultados.style.map(colorear_prediccion, subset=["Predicción"])
-    st.dataframe(styled, use_container_width=True, height=420, hide_index=True)
+        # Stat cards (en grid 2x2 para columna estrecha)
+        c1, c2 = st.columns(2)
+        with c1:
+            st.markdown(
+                f'<div class="stat-card info"><div class="label">Total</div>'
+                f'<div class="value">{n_total}</div></div>',
+                unsafe_allow_html=True,
+            )
+        with c2:
+            st.markdown(
+                f'<div class="stat-card success"><div class="label">Solventes</div>'
+                f'<div class="value">{n_solv}</div>'
+                f'<div class="delta">{pct_solv:.1f}%</div></div>',
+                unsafe_allow_html=True,
+            )
+        c3, c4 = st.columns(2)
+        with c3:
+            st.markdown(
+                f'<div class="stat-card danger"><div class="label">Morosos</div>'
+                f'<div class="value">{n_mor}</div>'
+                f'<div class="delta">{pct_mor:.1f}%</div></div>',
+                unsafe_allow_html=True,
+            )
+        with c4:
+            cls = "success" if riesgo_promedio < 40 else ("warning" if riesgo_promedio < 60 else "danger")
+            st.markdown(
+                f'<div class="stat-card {cls}"><div class="label">Riesgo prom.</div>'
+                f'<div class="value">{riesgo_promedio:.1f}%</div></div>',
+                unsafe_allow_html=True,
+            )
 
-    st.markdown("")
-    c1, c2, c3 = st.columns([1, 2, 1])
-    with c2:
+        st.markdown("")
+        st.markdown('<p class="section-title" style="margin-top:1rem;">Tabla de predicciones</p>', unsafe_allow_html=True)
+        styled = df_resultados.style.map(colorear_prediccion, subset=["Predicción"])
+        st.dataframe(styled, use_container_width=True, height=400, hide_index=True)
+
+        st.markdown("")
         st.download_button(
-            label="Descargar resultados (CSV)",
+            label="📥 Descargar resultados (CSV)",
             data=df_resultados.to_csv(index=False).encode("utf-8"),
             file_name=f"resultados_{pd.Timestamp.now().strftime('%Y%m%d_%H%M')}.csv",
             mime="text/csv",
             use_container_width=True,
         )
 
-    # ========================================================
-    # GRÁFICOS (versión original con st.bar_chart)
-    # ========================================================
-    st.markdown('<p class="section-title">Distribución de riesgo</p>', unsafe_allow_html=True)
-    c1, c2 = st.columns(2)
-    with c1:
+        # ========================================================
+        # GRÁFICOS (dentro de col_outputs)
+        # ========================================================
+        st.markdown('<p class="section-title" style="margin-top:1.5rem;">Distribución de riesgo</p>', unsafe_allow_html=True)
+
         st.markdown("**Por nivel de riesgo**")
         distribucion = df_resultados["Nivel de Riesgo"].value_counts().reindex(
             ["Bajo", "Moderado", "Alto", "Muy Alto"], fill_value=0
         )
-        st.bar_chart(distribucion, color=["#16a34a"], height=300)
-    with c2:
+        st.bar_chart(distribucion, color=["#16a34a"], height=280)
+
         st.markdown("**Probabilidad de morosidad**")
         proba = df_resultados["Prob. Moroso (%)"]
         hist = pd.cut(proba, bins=[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]).value_counts().sort_index()
         hist.index = hist.index.astype(str)
-        st.bar_chart(hist, color=["#1a365d"], height=300)
+        st.bar_chart(hist, color=["#1a365d"], height=280)
 
 
 # ============================================================
-# TABS DE INFO
+# TABS DE INFO (full width debajo de las 2 columnas)
 # ============================================================
 st.markdown("---")
 st.markdown('<p class="section-title">Información</p>', unsafe_allow_html=True)
